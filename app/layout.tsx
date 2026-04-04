@@ -41,10 +41,13 @@ export default function RootLayout({
 
             <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
               <Link href="/" style={{ ...linkStyle, color: '#F5F2E7', backgroundColor: 'rgba(255,255,255,0.15)' }}>
-                1. Dashboard
+                Dashboard
               </Link>
               <Link href="/lotes" style={linkStyle}>
-                2. Aprobación de Lotes
+                1. Aprobación de Libros
+              </Link>
+              <Link href="/publicacion" style={linkStyle}>
+                2. Publicar Libros
               </Link>
               <Link href="/pedidos" style={linkStyle}>
                 3. Gestión de Pedidos

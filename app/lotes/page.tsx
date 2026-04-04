@@ -58,10 +58,21 @@ export default async function LotesPage() {
                       En revisión
                     </span>
                   </div>
-                  <p style={{ fontSize: '1.1rem', color: '#1A1A1A', fontWeight: 600, margin: '0 0 0.5rem' }}>
-                     Vendedor: <span style={{ fontWeight: 800 }}>{lot.user?.email || 'Desconocido'}</span> 
-                     {lot.user?.phone ? <span style={{ color: '#666', fontWeight: 400 }}> ({lot.user.phone})</span> : ''}
-                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    <p style={{ fontSize: '1.1rem', color: '#1A1A1A', fontWeight: 600, margin: 0 }}>
+                       Vendedor: <span style={{ fontWeight: 800 }}>{lot.user?.email || 'Desconocido'}</span> 
+                    </p>
+                    {lot.user?.phone && (
+                      <a 
+                        href={`https://wa.me/${lot.user.phone.replace(/\\D/g, '')}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', backgroundColor: '#25D366', color: 'white', padding: '0.2rem 0.6rem', borderRadius: '999px', fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none' }}
+                      >
+                        WhatsApp
+                      </a>
+                    )}
+                  </div>
                   <p style={{ fontSize: '0.95rem', color: '#888', margin: 0, fontWeight: 500 }}>
                     📚 Contiene <strong style={{ color: '#1B3022' }}>{lot.books.length}</strong> libro{lot.books.length !== 1 ? 's' : ''} esperando validación.
                   </p>

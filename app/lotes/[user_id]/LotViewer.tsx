@@ -221,7 +221,7 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
         ...form, 
         status_code: 4, 
         review_at: new Date().toISOString(),
-        accepted_at: new Date().toISOString() 
+        accepted_at: new Date().toISOString()
       }
       const { error } = await supabase.from('books').update(payload).eq('id', currentBook.id)
       if (error) throw error;
