@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+:root {
+  /* === Libroloop Design System === */
+  /* Colors */
+  --cream: #F5F2E7;
+  --green: #1B3022;
+  --green-light: #2a4a34;
+  --charcoal: #1A1A1A;
+  --dark-gray: #333333;
+  --gold: #A67C00;
+  --gold-light: #C49A00;
+
+  /* Semantic */
+  --background: var(--cream);
+  --foreground: var(--charcoal);
+  --primary: var(--green);
+  --accent: var(--gold);
+}
+
+/* === Typography === */
+body {
+  font-family: 'Montserrat', 'Lato', sans-serif;
+  background-color: var(--cream);
+  color: var(--charcoal);
+}
+
+h1,
+h2,
+h3,
+.font-serif {
+  font-family: 'Playfair Display', 'Libre Baskerville', serif;
+}
+
+/* === Utilities === */
+.bg-cream {
+  background-color: #F5F2E7;
+}
+
+.bg-green {
+  background-color: #1B3022;
+}
+
+.text-green {
+  color: #1B3022;
+}
+
+.text-gold {
+  color: #A67C00;
+}
+
+.border-green {
+  border-color: #1B3022;
+}
+
+/* Price strike-through */
+.price-original {
+  text-decoration: line-through;
+  color: #999;
+  font-size: 0.9em;
+}
+
+.price-sale {
+  color: #1B3022;
+  font-weight: 700;
+}
+
+/* Filter pills */
+.pill {
+  border-radius: 999px;
+  padding: 0.4rem 1rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1.5px solid #1B3022;
+  color: #1B3022;
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.pill:hover,
+.pill.active {
+  background-color: #1B3022;
+  color: white;
+}
+
+/* Book card hover */
+.book-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.book-card:hover {
+  box-shadow: 0 8px 24px rgba(27, 48, 34, 0.15);
+  transform: translateY(-3px);
+}
+
+/* Scrollbar thin */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F5F2E7;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1B3022;
+  border-radius: 3px;
+}
+
+/* ── Hero responsive layout ── */
+.hero-right-panel {
+  display: none;
+}
+
+.md-hidden-img {
+  display: block !important;
+}
+
+.hero-content {
+  padding: 0 1.5rem 3rem;
+}
+
+@media (min-width: 768px) {
+  .hero-right-panel {
+    display: block;
+  }
+
+  .md-hidden-img {
+    display: none !important;
+  }
+
+  .hero-content {
+    padding: 0;
+    text-align: left;
+    max-width: 520px;
+  }
+}
