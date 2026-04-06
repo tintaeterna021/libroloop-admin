@@ -49,17 +49,20 @@ export default function RootLayout({
               <Link href="/publicacion" style={linkStyle}>
                 2. Publicar Libros
               </Link>
+              <Link href="/imagenes" style={linkStyle}>
+                3. Imágenes de Publicación
+              </Link>
               <Link href="/pedidos" style={linkStyle}>
-                3. Gestión de Pedidos
+                4. Gestión de Pedidos
               </Link>
               <Link href="/inventario" style={linkStyle}>
-                4. Inventario General
+                5. Inventario General
               </Link>
               <Link href="/finanzas" style={linkStyle}>
-                5. Finanzas y Pagos
+                6. Finanzas y Pagos
               </Link>
               <Link href="/usuarios" style={linkStyle}>
-                6. Directorio Usuarios
+                7. Directorio Usuarios
               </Link>
             </nav>
 

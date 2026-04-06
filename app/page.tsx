@@ -22,8 +22,11 @@ export default async function AdminDashboard() {
   // 3. Lotes nuevos (En revisión): books with status_code = 1
   const { count: lotesRevision } = await supabase.from('books').select('*', { count: 'exact', head: true }).eq('status_code', 1)
 
-  // 4. Libros Totales (Publicados activos): books with status_code = 5
-  const { count: librosActivos } = await supabase.from('books').select('*', { count: 'exact', head: true }).eq('status_code', 5)
+  // 4. Libros Totales (Publicados activos con imágenes): books with status_code = 6
+  const { count: librosActivos } = await supabase.from('books').select('*', { count: 'exact', head: true }).eq('status_code', 6)
+
+  // 5. Libros pendientes de imágenes: status_code = 5
+  const { count: librosPendientesImagenes } = await supabase.from('books').select('*', { count: 'exact', head: true }).eq('status_code', 5)
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F5F2E7', padding: '3rem 2rem', fontFamily: "'Montserrat', sans-serif" }}>
@@ -70,6 +73,15 @@ export default async function AdminDashboard() {
                 {librosActivos || 0}
             </p>
             <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.5rem' }}>Ejemplares disponibles públicos</p>
+          </div>
+
+          {/* Tarjeta 5 - Pendientes de imagen */}
+          <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '1.5rem', boxShadow: '0 4px 6px rgba(0,0,0,0.03)', borderLeft: '5px solid #8e44ad' }}>
+            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.8rem', color: '#888', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem' }}>Pendientes de Imagen</p>
+            <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '2.5rem', color: '#8e44ad', fontWeight: 900 }}>
+                {librosPendientesImagenes || 0}
+            </p>
+            <p style={{ fontSize: '0.75rem', color: '#8e44ad', marginTop: '0.5rem', fontWeight: 600 }}>Sin foto de publicación aún</p>
           </div>
 
         </div>
