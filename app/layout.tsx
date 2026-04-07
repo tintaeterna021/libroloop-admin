@@ -47,10 +47,10 @@ export default function RootLayout({
                 1. Aprobación de Libros
               </Link>
               <Link href="/publicacion" style={linkStyle}>
-                2. Publicar Libros
+                2. Seleccionar opciones de almacenamiento
               </Link>
               <Link href="/imagenes" style={linkStyle}>
-                3. Imágenes de Publicación
+                3. Publicar libros
               </Link>
               <Link href="/pedidos" style={linkStyle}>
                 4. Gestión de Pedidos

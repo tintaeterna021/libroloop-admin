@@ -144,6 +144,7 @@ export default function ImagenesClient({ books: initialBooks }: { books: Book[] 
 
       const updates: Record<string, string | number> = {
         status_code: 6, // Status 6 = Publicado (con imágenes)
+        published_at: new Date().toISOString(),
       }
 
       if (coverFile) {
@@ -183,10 +184,10 @@ export default function ImagenesClient({ books: initialBooks }: { books: Book[] 
       {/* Header */}
       <header style={{ maxWidth: '900px', margin: '0 auto 2.5rem' }}>
         <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2.2rem', color: '#1B3022', fontWeight: 900, marginBottom: '0.4rem' }}>
-          Imágenes de Publicación
+          Publicar libros (Imágenes)
         </h1>
         <p style={{ color: '#666', fontSize: '0.9rem', margin: 0 }}>
-          Sube la portada y contraportada para finalizar la publicación.
+          Sube la portada y contraportada para finalizar la publicación y activar el libro.
         </p>
       </header>
 
@@ -311,7 +312,7 @@ export default function ImagenesClient({ books: initialBooks }: { books: Book[] 
                 transition: 'background-color 0.2s'
               }}
             >
-              {uploading ? 'GUARDANDO...' : '💾 GUARDAR Y SIGUIENTE'}
+              {uploading ? 'PUBLICANDO...' : '🚀 PUBLICAR Y SIGUIENTE'}
             </button>
           </div>
         </div>

@@ -42,7 +42,6 @@ export default function PublicationViewer({ serverBooks }: { serverBooks: any[] 
               const payload = {
                   status_code: 5,
                   published: true, // o 1 si es numérico
-                  published_at: new Date().toISOString(),
                   sale_price: prices.salePrice,
                   seller_payout_amount: sellerPayout,
                   profit_amount: profit,
@@ -59,7 +58,7 @@ export default function PublicationViewer({ serverBooks }: { serverBooks: any[] 
               throw new Error(`Hubo errores al publicar algunos libros: ${errors.join(', ')}`);
           }
 
-          alert('¡Publicación exitosa! Todos los libros están en status 5 y con sus precios definitivos asignados.');
+          alert('¡Opciones guardadas! Los libros están listos para el paso de publicación (imágenes).');
           router.push('/publicacion');
 
       } catch (e: any) {
@@ -75,8 +74,8 @@ export default function PublicationViewer({ serverBooks }: { serverBooks: any[] 
         <button onClick={() => router.push('/publicacion')} style={{ background: 'none', border: 'none', color: '#1B3022', fontWeight: 800, cursor: 'pointer', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', padding: 0 }}>
           ← Volver a Resumen
         </button>
-        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2.5rem', color: '#1B3022', fontWeight: 900, marginBottom: '0.5rem' }}>Publicar Libros de {userName}</h1>
-        <p style={{ color: '#666', fontSize: '0.95rem' }}>Confirma la opción elegida por el vendedor para calcular precios y ganancias definitivas.</p>
+        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2.5rem', color: '#1B3022', fontWeight: 900, marginBottom: '0.5rem' }}>Opciones de Almacenamiento: {userName}</h1>
+        <p style={{ color: '#666', fontSize: '0.95rem' }}>Indica la opción de comisión/almacenamiento elegida por el vendedor antes de pasar a la publicación final.</p>
       </header>
 
       <main style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2rem' }}>

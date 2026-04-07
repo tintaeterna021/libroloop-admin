@@ -214,7 +214,7 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
                                                 disabled={isSubmitting[lot.user.id]}
                                                 style={{ width: '100%', padding: '1rem', backgroundColor: '#1B3022', color: 'white', borderRadius: '8px', border: 'none', fontWeight: 800, cursor: isSubmitting[lot.user.id] ? 'not-allowed' : 'pointer' }}
                                             >
-                                                {isSubmitting[lot.user.id] ? 'PUBLICANDO...' : '🚀 PUBLICAR LOTE'}
+                                                {isSubmitting[lot.user.id] ? 'GUARDANDO...' : 'GUARDAR'}
                                             </button>
                                         </div>
                                     </div>
