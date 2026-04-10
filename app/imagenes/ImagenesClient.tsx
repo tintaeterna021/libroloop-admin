@@ -17,6 +17,7 @@ type Book = {
   link_gandhi: string | null
   link_buscalibre: string | null
   link_sotano: string | null
+  link_pendulo: string | null
 }
 
 // ─── ImageUploadSlot ───────────────────────────────────────────────────────────
@@ -168,12 +169,12 @@ export default function ImagenesClient({ books: initialBooks }: { books: Book[] 
   }
 
 
-  // Links disponibles del libro actual
   const links = [
     currentBook.link_amazon     && { label: 'Amazon',     url: currentBook.link_amazon },
     currentBook.link_gandhi     && { label: 'Gandhi',     url: currentBook.link_gandhi },
     currentBook.link_buscalibre && { label: 'Buscalibre', url: currentBook.link_buscalibre },
     currentBook.link_sotano     && { label: 'El Sótano',  url: currentBook.link_sotano },
+    currentBook.link_pendulo    && { label: 'Péndulo',    url: currentBook.link_pendulo },
   ].filter(Boolean) as { label: string; url: string }[]
 
   // ── Render ──────────────────────────────────────────────────────────────────

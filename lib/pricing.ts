@@ -1,23 +1,32 @@
 export function roundDecena(value: number): number {
   if (!value) return 0;
-  const rem = value % 10;
-  // Regla: Si la terminación (el remanente de 10) es mayor a 2.5, se sube a la siguiente decena.
-  if (rem > 2.5) {
-    return value - rem + 10;
-  }
-  return value - rem;
+  return Math.round(value / 10) * 10;
 }
 
-export function round5(value: number): number {
+export function floor5(value: number): number {
   if (!value) return 0;
-  // Redondeo al múltiplo de 5 más cercano. Ej: 78 -> 80, 76 -> 75
-  return Math.round(value / 5) * 5;
+  // Redondeo de 4 para abajo 0 y de 9 para abajo 5: ej 74 -> 70, 79 -> 75
+  return Math.floor(value / 5) * 5;
 }
 
 export function calculatePrices(originalPrice: number) {
-  const salePrice = roundDecena(originalPrice * 0.55);
-  const sellerOption1 = round5(salePrice * 0.60); // Nosotros almacenamos (60%)
-  const sellerOption2 = round5(salePrice * 0.50); // Vendedor almacena (50%)
+  let salePrice = roundDecena(originalPrice * 0.55);
+  if (salePrice < 100) {
+    salePrice = 100;
+  }
+  
+  // Opción 1:
+  let sellerOption1;
+  if (salePrice === 100) {
+    sellerOption1 = 50;
+  } else if (salePrice === 110) {
+    sellerOption1 = 60;
+  } else {
+    sellerOption1 = floor5(salePrice * 0.60); // Math.floor al múltiplo de 5
+  }
+  
+  // Opción 2:
+  const sellerOption2 = salePrice / 2; 
   
   return {
     salePrice,

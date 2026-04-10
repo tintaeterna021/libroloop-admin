@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { calculatePrices } from '@/lib/pricing'
 
 export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
   const router = useRouter()
@@ -125,7 +126,8 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
                 link_amazon: `https://www.amazon.com.mx/s?k=${cleanIsbn}`,
                 link_gandhi: `https://www.gandhi.com.mx/?query=${cleanIsbn}`,
                 link_buscalibre: `https://www.buscalibre.com.mx/libros/search?q=${cleanIsbn}`,
-                link_sotano: `https://www.elsotano.com/buscar?SotK=${cleanIsbn}`
+                link_sotano: `https://www.elsotano.com/buscar?SotK=${cleanIsbn}`,
+                link_pendulo: `https://pendulo.com/busqueda/listaLibros.php?tipoBus=full&palabrasBusqueda=${cleanIsbn}`
             })
             return
         }
@@ -186,7 +188,8 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
             link_amazon: `https://www.amazon.com.mx/s?k=${cleanIsbn}`,
             link_gandhi: `https://www.gandhi.com.mx/?query=${cleanIsbn}`,
             link_buscalibre: `https://www.buscalibre.com.mx/libros/search?q=${cleanIsbn}`,
-            link_sotano: `https://www.elsotano.com/buscar?SotK=${cleanIsbn}`
+            link_sotano: `https://www.elsotano.com/buscar?SotK=${cleanIsbn}`,
+            link_pendulo: `https://pendulo.com/busqueda/listaLibros.php?tipoBus=full&palabrasBusqueda=${cleanIsbn}`
         })
 
     } catch (e) {
@@ -217,9 +220,11 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
 
     setIsSubmitting(true)
     try {
+      const prices = calculatePrices(form.original_price);
       const payload = { 
         ...form, 
         status_code: 4, 
+        sale_price: prices.salePrice,
         review_at: new Date().toISOString(),
         accepted_at: new Date().toISOString()
       }
@@ -372,6 +377,10 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
                  <div style={{ display: 'flex', gap: '0.5rem' }}>
                      <input type="text" placeholder="Link El Sótano" value={form.link_sotano || ''} onChange={e => setForm({...form, link_sotano: e.target.value})} style={{ flex: 1, padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px', fontSize: '0.85rem' }} />
                      {form.link_sotano && <button onClick={() => window.open(form.link_sotano, '_blank')} style={{ padding: '0 0.8rem', backgroundColor: '#eee', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>Ver</button>}
+                 </div>
+                 <div style={{ display: 'flex', gap: '0.5rem' }}>
+                     <input type="text" placeholder="Link Péndulo" value={form.link_pendulo || ''} onChange={e => setForm({...form, link_pendulo: e.target.value})} style={{ flex: 1, padding: '0.6rem', border: '1px solid #ddd', borderRadius: '4px', fontSize: '0.85rem' }} />
+                     {form.link_pendulo && <button onClick={() => window.open(form.link_pendulo, '_blank')} style={{ padding: '0 0.8rem', backgroundColor: '#eee', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}>Ver</button>}
                  </div>
              </div>
          </div>
