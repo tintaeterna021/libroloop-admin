@@ -8,7 +8,7 @@ export default async function ImagenesPage() {
   // Libros en status 5 = Listos para imágenes
   const { data: books, error } = await supabase
     .from('books')
-    .select('id, title, author, original_front_image_url, publish_front_image_url, publish_back_image_url, link_amazon, link_gandhi, link_buscalibre, link_sotano, user_id')
+    .select('id, title, author, original_front_image_url, publish_front_image_url, publish_back_image_url, link_amazon, link_gandhi, link_buscalibre, link_sotano, link_pendulo, user_id')
     .eq('status_code', 5)
     .order('published_at', { ascending: true })
 
