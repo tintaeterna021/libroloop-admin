@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { supabase } from '@/lib/supabase'
 import PublicationViewer from './PublicationViewer'
 import Link from 'next/link'
