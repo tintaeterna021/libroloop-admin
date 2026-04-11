@@ -95,38 +95,35 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
                             const userPhone = lot.user?.phone ? lot.user.phone.replace(/\D/g, '') : '';
                             const currentSelection = selectedOptions[lot.user.id] || '';
 
-                            // MENSAJE WHATSAPP SIN EMOJIS
+                            // MENSAJE WHATSAPP
                             let msg = '';
                             if (isOption1Available) {
-                                msg = `Hola ${userName}, buenas noticias!\n` +
-                                    `Hemos evaluado tus libros y te explico como funcionara tu ganancia dependiendo de la recoleccion que elijas:\n\n` +
-                                    `*Opcion 1*: Pasamos por todos los libros en una sola vez. Ganas el 60% de la venta.\n` +
-                                    `(Solo necesitas entregar los libros. Liberas espacio de inmediato y no te molestamos cada vez que se logre una venta).\n\n` +
-                                    `*Opcion 2*: Tu guardas tus libros. Ganas el 50% de la venta.\n` +
-                                    `(Se comparten los libros conforme se venden).\n\n` +
-                                    `Siempre sugerimos la Opcion 1 para ganar mas y liberar espacio.\n\n` +
-                                    `Detalle de tus ganancias por libro:\n`;
+                                msg = `¡Hola! Buenas noticias. 📸\n\n` +
+                                    `Hemos evaluado tus libros y están listos para salir a la venta en LibroLoop. Te envío el detalle de lo que ganarías por cada uno. Tenemos dos modalidades de recolección:\n\n` +
+                                    `🚚 Opción 1 (consignación): Pasamos por todos tus libros de una vez y nosotros los almacenamos. Ganas el 60% de la venta (ej. de un libro de $160, tú te llevas $100).\n\n` +
+                                    `🏡 Opción 2: Tú guardas tus libros en casa y pasamos por ellos conforme se vayan vendiendo. La ganancia es 50/50.\n\n` +
+                                    `Detalle de tu ganancia (Opción 1 / Opción 2):\n\n`;
 
-                                lot.books.forEach((book: any, i: number) => {
+                                lot.books.forEach((book: any) => {
                                     const { sellerOption1, sellerOption2 } = calculatePrices(book.original_price || 0);
-                                    msg += `${i + 1}. "${book.title}"\n`;
-                                    msg += `   - Si eliges Opcion 1: $${sellerOption1}\n`;
-                                    msg += `   - Si eliges Opcion 2: $${sellerOption2}\n`;
+                                    msg += `"${book.title}" - Ganas $${sellerOption1} / $${sellerOption2}\n\n`;
                                 });
 
-                                msg += `\nQue esquema prefieres para publicar tus libros?`;
+                                // Remove the last double newline and add a single newline before the final text, OR just leave it. The browser encodeURIComponent keeps it.
+                                msg = msg.trim() + `\n\nEn cualquier opción pasamos por los libros hasta tu domicilio sin costo extra. ¿Con qué modalidad te gustaría que los publiquemos?`;
                             } else {
-                                msg = `Hola ${userName}, buenas noticias!\n` +
-                                    `Hemos evaluado tus libros y estan listos para salir a la venta.\n\n` +
-                                    `Forma de recoleccion: Tu guardas tus libros. Te contactamos conforme se vayan vendiendo. De cada libro vendido, tu ganancia sera del 50%.\n\n` +
-                                    `Detalle de tu ganancia garantizada:\n`;
+                                msg = `¡Hola! Buenas noticias. 📸\n\n` +
+                                    `Hemos evaluado tus libros y están listos para salir a la venta en LibroLoop. Al ser un lote pequeño, la modalidad que aplica es la siguiente:\n\n` +
+                                    `🏡 Opción 2: Tú guardas tus libros y nosotros pasamos por ellos conforme se vendan. Tu ganancia es del 50% del valor de venta.\n\n` +
+                                    `Detalle de tu ganancia:\n\n`;
 
-                                lot.books.forEach((book: any, i: number) => {
+                                lot.books.forEach((book: any) => {
                                     const { sellerOption2 } = calculatePrices(book.original_price || 0);
-                                    msg += `${i + 1}. "${book.title}" - Ganas $${sellerOption2}\n`;
+                                    msg += `"${book.title}" - Ganas $${sellerOption2}\n\n`;
                                 });
 
-                                msg += `\nEstas de acuerdo para empezar a publicarlos?`;
+                                msg += `💡 Tip LibroLoop: Si logras completar un mínimo de 10 libros, puedes acceder a la Opción 1 (consignación), donde nosotros nos llevamos todo tu lote de una vez y tú ganas más dinero (60% de la venta). Por ejemplo, en un libro de $160, ganarías $100 en lugar de $80.\n\n` +
+                                    `¿Te gustaría publicar estos libros así o prefieres agregar más títulos para llegar a los 10 y ganar el 60%?`;
                             }
 
                             const waLink = userPhone ? `https://wa.me/${userPhone}?text=${encodeURIComponent(msg)}` : '#';
