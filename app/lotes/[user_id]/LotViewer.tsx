@@ -106,8 +106,19 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
         // 2. Normalización del ISBN ("clean_isbn")
         const cleanIsbn = isbnsToKeep.replace(/[^\dX]/gi, "").toUpperCase()
         
-        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${cleanIsbn}`)
+        const apiKeyParam = process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY ? `&key=${process.env.NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY}` : ''
+        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${cleanIsbn}${apiKeyParam}`)
         const data = await res.json()
+        
+        if (!res.ok || data.error) {
+            if (data.error?.code === 429) {
+                alert("ERROR: Se ha excedido el límite de consultas diarias a la API de Google Books (Error 429). Por favor, intenta de nuevo más tarde o agrega una clave de API (NEXT_PUBLIC_GOOGLE_BOOKS_API_KEY).")
+            } else {
+                alert(`ERROR API Google Books: ${data.error?.message || res.statusText}`)
+            }
+            setIsSubmitting(false)
+            return
+        }
         
         let totalItems = data.totalItems || 0
         if (data.items && data.items.length > 0) {
