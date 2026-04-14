@@ -59,6 +59,7 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
 
                 const payload = {
                     status_code: 5,
+                    accepted_at: new Date().toISOString(), // paso 2: vendedor confirmó opción
                     published_at: new Date().toISOString(),
                     sale_price: prices.salePrice,
                     seller_payout_amount: sellerPayout,
@@ -110,22 +111,22 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
                             // MENSAJE WHATSAPP
                             // Emojis como escapes Unicode para evitar corrupción de encoding de archivo
                             const E = {
-                                wave:    '\u{1F44B}', // 👋
-                                books:   '\u{1F4DA}', // 📚
-                                spark:   '\u2728',    // ✨
-                                box:     '\u{1F4E6}', // 📦
-                                money:   '\u{1F4B0}', // 💰
-                                house:   '\u{1F3E0}', // 🏠
-                                truck:   '\u{1F69A}', // 🚚
-                                smile:   '\u{1F60A}', // 😊
-                                bulb:    '\u{1F4A1}', // 💡
-                                sep:     '\u2501'.repeat(15), // ━━━━━━━━━━━━━━━
+                                wave: '\u{1F44B}', // 👋
+                                books: '\u{1F4DA}', // 📚
+                                spark: '\u2728',    // ✨
+                                box: '\u{1F4E6}', // 📦
+                                money: '\u{1F4B0}', // 💰
+                                house: '\u{1F3E0}', // 🏠
+                                truck: '\u{1F69A}', // 🚚
+                                smile: '\u{1F60A}', // 😊
+                                bulb: '\u{1F4A1}', // 💡
+                                sep: '\u2501'.repeat(15), // ━━━━━━━━━━━━━━━
                             }
 
                             let msg = '';
                             if (isOption1Available) {
                                 msg =
-`\u00a1Hola! ${E.wave} Buenas noticias\n\nTus libros est\u00e1n listos para publicarse en *LibroLoop* ${E.books}${E.spark}\n\nTe dejo las dos modalidades:\n\n${E.box} *Opci\u00f3n 1 (Consignaci\u00f3n)*\nNosotros recogemos todos tus libros\n${E.money} Ganas *60%* de la venta\n\n${E.house} *Opci\u00f3n 2 (En casa)*\nT\u00fa los guardas y pasamos cuando se vendan\n${E.money} Ganas *50%*\n\n${E.sep}\n${E.books} *Tu ganancia por libro:*\n${E.sep}`;
+                                    `\u00a1Hola! ${E.wave} Buenas noticias\n\nTus libros est\u00e1n listos para publicarse en *LibroLoop* ${E.books}${E.spark}\n\nTe dejo las dos modalidades:\n\n${E.box} *Opci\u00f3n 1 (Consignaci\u00f3n)*\nNosotros recogemos todos tus libros\n${E.money} Ganas *60%* de la venta\n\n${E.house} *Opci\u00f3n 2 (En casa)*\nT\u00fa los guardas y pasamos cuando se vendan\n${E.money} Ganas *50%*\n\n${E.sep}\n${E.books} *Tu ganancia por libro:*\n${E.sep}`;
                                 lot.books.forEach((book: any) => {
                                     const { sellerOption1, sellerOption2 } = calculatePrices(book.original_price || 0);
                                     msg += `\n\n\u2022 *${book.title}*\n  ${E.money} $${sellerOption1} / $${sellerOption2}`;
@@ -133,7 +134,7 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
                                 msg += `\n\n${E.sep}\n\n${E.truck} *Recolecci\u00f3n sin costo*\n\n\u00bfQu\u00e9 opci\u00f3n prefieres? ${E.smile}`;
                             } else {
                                 msg =
-`\u00a1Hola! ${E.wave} Buenas noticias ${E.books}${E.spark}\n\nTus libros est\u00e1n listos para publicarse en *LibroLoop*\n\n${E.sep}\n${E.house} *Modalidad disponible*\n${E.sep}\n\n*Opci\u00f3n 2 (En casa)*\nT\u00fa guardas los libros y pasamos por ellos conforme se vendan\n\n${E.money} Ganas *50%* del valor de venta\n\n${E.sep}\n${E.books} *Tu ganancia por libro:*\n${E.sep}`;
+                                    `\u00a1Hola! ${E.wave} Buenas noticias ${E.books}${E.spark}\n\nTus libros est\u00e1n listos para publicarse en *LibroLoop*\n\n${E.sep}\n${E.house} *Modalidad disponible*\n${E.sep}\n\n*Opci\u00f3n 2 (En casa)*\nT\u00fa guardas los libros y pasamos por ellos conforme se vendan\n\n${E.money} Ganas *50%* del valor de venta\n\n${E.sep}\n${E.books} *Tu ganancia por libro:*\n${E.sep}`;
                                 lot.books.forEach((book: any) => {
                                     const { sellerOption2 } = calculatePrices(book.original_price || 0);
                                     msg += `\n\n\u2022 *${book.title}*\n  ${E.money} $${sellerOption2}`;
@@ -192,7 +193,7 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
 
                                         {/* Panel Interactivo de Publicación */}
                                         <div style={{ backgroundColor: '#f9f9f9', padding: '1.5rem', borderRadius: '12px', minWidth: '350px' }}>
-                                            <h3 style={{ fontSize: '1rem', color: '#1A1A1A', fontWeight: 800, marginBottom: '1rem' }}>Acción de Publicación</h3>
+                                            <h3 style={{ fontSize: '1rem', color: '#1A1A1A', fontWeight: 800, marginBottom: '1rem' }}>Elige la opción de almacenamiento:</h3>
 
                                             {isOption1Available ? (
                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
