@@ -105,19 +105,36 @@ export default function ImagenesClient({ books: initialBooks }: { books: Book[] 
   const total = books.length
   const remaining = total - currentIndex
 
-  // Avanza al siguiente libro (o al final)
-  const advance = () => {
+  // Limpia los archivos seleccionados
+  const resetFiles = () => {
     setCoverFile(null)
     setBackCoverFile(null)
     setCoverPreview(null)
     setBackCoverPreview(null)
+  }
 
+  // Avanza al siguiente libro tras publicar (o recarga si terminó)
+  const advance = () => {
+    resetFiles()
     if (currentIndex + 1 >= books.length) {
-      // Todos procesados → recargar para ver si hay más
       router.refresh()
     } else {
       setCurrentIndex(prev => prev + 1)
     }
+  }
+
+  // Saltar: mueve el libro actual al final de la cola (carrusel infinito)
+  const handleSkip = () => {
+    resetFiles()
+    setBooks(prev => {
+      const next = [...prev]
+      const [skipped] = next.splice(currentIndex, 1)
+      next.push(skipped)
+      return next
+    })
+    // El índice no cambia: el siguiente libro ya ocupó esta posición.
+    // Si saltamos el último, ajustamos para no salirnos del array.
+    setCurrentIndex(prev => Math.min(prev, books.length - 2))
   }
 
   const handleFileChange = (field: 'cover' | 'back', file: File) => {
@@ -132,6 +149,12 @@ export default function ImagenesClient({ books: initialBooks }: { books: Book[] 
   }
 
   const handleSave = async () => {
+    // La portada es el único campo obligatorio
+    if (!coverFile && !currentBook.publish_front_image_url) {
+      alert('La portada es obligatoria para publicar. Si aún no tienes la imagen, usa "Saltar".')
+      return
+    }
+
     setUploading(true)
     try {
       const uploadFile = async (file: File, path: string): Promise<string> => {
@@ -301,6 +324,38 @@ export default function ImagenesClient({ books: initialBooks }: { books: Book[] 
             padding: '1.5rem 2.5rem 2.5rem',
             display: 'flex', gap: '1rem'
           }}>
+            {/* Saltar: carrusel infinito, sin tocar BD */}
+            <button
+              onClick={handleSkip}
+              disabled={uploading}
+              style={{
+                padding: '1.1rem 1.6rem',
+                backgroundColor: 'transparent',
+                color: '#888',
+                border: '2px solid #ddd',
+                borderRadius: '10px',
+                fontWeight: 700,
+                cursor: uploading ? 'not-allowed' : 'pointer',
+                fontSize: '0.9rem',
+                letterSpacing: '0.03em',
+                transition: 'border-color 0.2s, color 0.2s',
+                whiteSpace: 'nowrap',
+              }}
+              onMouseEnter={e => {
+                if (!uploading) {
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = '#aaa'
+                  ;(e.currentTarget as HTMLButtonElement).style.color = '#555'
+                }
+              }}
+              onMouseLeave={e => {
+                ;(e.currentTarget as HTMLButtonElement).style.borderColor = '#ddd'
+                ;(e.currentTarget as HTMLButtonElement).style.color = '#888'
+              }}
+            >
+              ↷ Saltar
+            </button>
+
+            {/* Publicar */}
             <button
               onClick={handleSave}
               disabled={uploading}
@@ -313,7 +368,7 @@ export default function ImagenesClient({ books: initialBooks }: { books: Book[] 
                 transition: 'background-color 0.2s'
               }}
             >
-              {uploading ? 'PUBLICANDO...' : '🚀 PUBLICAR Y SIGUIENTE'}
+              {uploading ? 'PUBLICANDO...' : '🚀 Publicar'}
             </button>
           </div>
         </div>
