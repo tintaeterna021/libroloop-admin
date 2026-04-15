@@ -126,12 +126,12 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
                             let msg = '';
                             if (isOption1Available) {
                                 msg =
-                                    `\u00a1Hola! ${E.wave} Buenas noticias\n\nTus libros est\u00e1n listos para publicarse en *LibroLoop* ${E.books}${E.spark}\n\nTe dejo las dos modalidades:\n\n${E.box} *Opci\u00f3n 1 (Consignaci\u00f3n)*\nNosotros recogemos todos tus libros\n${E.money} Ganas *60%* de la venta\n\n${E.house} *Opci\u00f3n 2 (En casa)*\nT\u00fa los guardas y pasamos cuando se vendan\n${E.money} Ganas *50%*\n\n${E.sep}\n${E.books} *Tu ganancia por libro:*\n${E.sep}`;
+                                    `\u00a1Hola! ${E.wave} Buenas noticias\n\nTus libros est\u00e1n listos para publicarse en *LibroLoop* ${E.books}${E.spark}\n\nTe dejo las dos modalidades:\n\n${E.box} *Opci\u00f3n 1 (Consignaci\u00f3n)*\nNosotros recogemos todos tus libros\n${E.money} Ganas *60%* de la venta\n\n${E.house} *Opci\u00f3n 2 (En casa)*\nT\u00fa los guardas y pasamos cuando se vendan\n${E.money} Ganas *50%*\n\n*Ejemplo:*\n- *T\u00edtulo de tu libro*\n${E.money} Opci\u00f3n 1 - 60% / Opci\u00f3n 2 - 50%\n\n${E.sep}\n${E.books} *Tu ganancia por libro:*\n${E.sep}`;
                                 lot.books.forEach((book: any) => {
                                     const { sellerOption1, sellerOption2 } = calculatePrices(book.original_price || 0);
                                     msg += `\n\n\u2022 *${book.title}*\n  ${E.money} $${sellerOption1} / $${sellerOption2}`;
                                 });
-                                msg += `\n\n${E.sep}\n\n${E.truck} *Recolecci\u00f3n sin costo*\n\n\u00bfQu\u00e9 opci\u00f3n prefieres? ${E.smile}`;
+                                msg += `\n\n${E.sep}\n\nPuede que algunos de tus t\u00edtulos hayan sido rechazados, te invitamos a revisar el panel de tus ventas para seguir el estatus de tus ejemplares.\n\n${E.truck} *Recolecci\u00f3n sin costo*\n\n\u00bfQu\u00e9 opci\u00f3n prefieres? ${E.smile} \n\nEn cuanto nos indiques empezaremos a promocionar tus libros. ${E.smile}`;
                             } else {
                                 msg =
                                     `\u00a1Hola! ${E.wave} Buenas noticias ${E.books}${E.spark}\n\nTus libros est\u00e1n listos para publicarse en *LibroLoop*\n\n${E.sep}\n${E.house} *Modalidad disponible*\n${E.sep}\n\n*Opci\u00f3n 2 (En casa)*\nT\u00fa guardas los libros y pasamos por ellos conforme se vendan\n\n${E.money} Ganas *50%* del valor de venta\n\n${E.sep}\n${E.books} *Tu ganancia por libro:*\n${E.sep}`;
@@ -139,7 +139,7 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
                                     const { sellerOption2 } = calculatePrices(book.original_price || 0);
                                     msg += `\n\n\u2022 *${book.title}*\n  ${E.money} $${sellerOption2}`;
                                 });
-                                msg += `\n\n${E.sep}\n${E.bulb} *Tip LibroLoop*\n${E.sep}\n\nSi llegas a *10 libros*, puedes acceder a:\n\n${E.box} *Consignaci\u00f3n*\nNos llevamos todo tu lote desde el inicio\n\n${E.money} Ganas *60%* de la venta\n(Ej: de $160 \u2192 t\u00fa ganas $100 en vez de $80)\n\n${E.sep}\n\n\u00bfTe gustar\u00eda publicar as\u00ed o prefieres agregar m\u00e1s libros para ganar el 60%? ${E.smile}`;
+                                msg += `\n\n${E.sep}\n\nPuede que algunos de tus t\u00edtulos hayan sido rechazados, te invitamos a revisar el panel de tus ventas para seguir el estatus de tus ejemplares.\n\n${E.bulb} *Tip LibroLoop*\n${E.sep}\n\nSi llegas a *10 libros*, puedes acceder a:\n\n${E.box} *Consignaci\u00f3n*\nNos llevamos todo tu lote desde el inicio\n\n${E.money} Ganas *60%* de la venta\n(Ej: de $160 \u2192 t\u00fa ganas $100 en vez de $80)\n\n${E.sep}\n\n\u00bfTe gustar\u00eda publicar as\u00ed o prefieres agregar m\u00e1s libros para ganar el 60%? ${E.smile}`;
                             }
 
                             const waLink = userPhone ? `https://wa.me/${userPhone}?text=${encodeURIComponent(msg)}` : '#';

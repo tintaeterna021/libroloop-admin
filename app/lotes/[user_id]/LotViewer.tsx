@@ -420,10 +420,16 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
                         {showRejectReasons && (
                             <div style={{ position: 'absolute', bottom: '110%', left: 0, right: 0, backgroundColor: 'white', border: '1px solid #ccc', borderRadius: '8px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
                                 <button onClick={() => handleReject('Malas condiciones físicas')} style={{ width: '100%', padding: '1rem', textAlign: 'center', border: 'none', borderBottom: '1px solid #eee', background: 'transparent', cursor: 'pointer', fontFamily: "'Montserrat'", fontSize: '0.85rem', color: '#333', fontWeight: 700 }}>
-                                    Por malas condiciones
+                                    Malas condiciones
                                 </button>
-                                <button onClick={() => handleReject('Edición antigua')} style={{ width: '100%', padding: '1rem', textAlign: 'center', border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: "'Montserrat'", fontSize: '0.85rem', color: '#333', fontWeight: 700 }}>
+                                <button onClick={() => handleReject('Libro más antiguo a 2001')} style={{ width: '100%', padding: '1rem', textAlign: 'center', border: 'none', borderBottom: '1px solid #eee', background: 'transparent', cursor: 'pointer', fontFamily: "'Montserrat'", fontSize: '0.85rem', color: '#333', fontWeight: 700 }}>
                                     Libro más antiguo a 2001
+                                </button>
+                                <button onClick={() => handleReject('Mala calidad de fotos')} style={{ width: '100%', padding: '1rem', textAlign: 'center', border: 'none', borderBottom: '1px solid #eee', background: 'transparent', cursor: 'pointer', fontFamily: "'Montserrat'", fontSize: '0.85rem', color: '#333', fontWeight: 700 }}>
+                                    Mala calidad de fotos
+                                </button>
+                                <button onClick={() => handleReject('Libro no original')} style={{ width: '100%', padding: '1rem', textAlign: 'center', border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: "'Montserrat'", fontSize: '0.85rem', color: '#333', fontWeight: 700 }}>
+                                    Libro no original
                                 </button>
                             </div>
                         )}

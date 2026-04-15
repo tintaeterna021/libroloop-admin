@@ -185,7 +185,11 @@ export default function ImagenesClient({ books: initialBooks }: { books: Book[] 
 
       advance()
     } catch (e: any) {
-      alert('Error: ' + e.message)
+      if (e.message?.includes('row-level security policy')) {
+        alert('Error de Permisos (RLS): No tienes permisos para subir imágenes al bucket "books". Asegúrate de haber ejecutado el script SQL del plan de implementación en tu panel de Supabase.')
+      } else {
+        alert('Error: ' + e.message)
+      }
     } finally {
       setUploading(false)
     }
@@ -193,11 +197,11 @@ export default function ImagenesClient({ books: initialBooks }: { books: Book[] 
 
 
   const links = [
-    currentBook.link_amazon     && { label: 'Amazon',     url: currentBook.link_amazon },
-    currentBook.link_gandhi     && { label: 'Gandhi',     url: currentBook.link_gandhi },
+    currentBook.link_amazon && { label: 'Amazon', url: currentBook.link_amazon },
+    currentBook.link_gandhi && { label: 'Gandhi', url: currentBook.link_gandhi },
     currentBook.link_buscalibre && { label: 'Buscalibre', url: currentBook.link_buscalibre },
-    currentBook.link_sotano     && { label: 'El Sótano',  url: currentBook.link_sotano },
-    currentBook.link_pendulo    && { label: 'Péndulo',    url: currentBook.link_pendulo },
+    currentBook.link_sotano && { label: 'El Sótano', url: currentBook.link_sotano },
+    currentBook.link_pendulo && { label: 'Péndulo', url: currentBook.link_pendulo },
   ].filter(Boolean) as { label: string; url: string }[]
 
   // ── Render ──────────────────────────────────────────────────────────────────
@@ -344,12 +348,12 @@ export default function ImagenesClient({ books: initialBooks }: { books: Book[] 
               onMouseEnter={e => {
                 if (!uploading) {
                   (e.currentTarget as HTMLButtonElement).style.borderColor = '#aaa'
-                  ;(e.currentTarget as HTMLButtonElement).style.color = '#555'
+                    ; (e.currentTarget as HTMLButtonElement).style.color = '#555'
                 }
               }}
               onMouseLeave={e => {
-                ;(e.currentTarget as HTMLButtonElement).style.borderColor = '#ddd'
-                ;(e.currentTarget as HTMLButtonElement).style.color = '#888'
+                ; (e.currentTarget as HTMLButtonElement).style.borderColor = '#ddd'
+                  ; (e.currentTarget as HTMLButtonElement).style.color = '#888'
               }}
             >
               ↷ Saltar
