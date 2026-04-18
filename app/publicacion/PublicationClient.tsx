@@ -88,6 +88,34 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
         }
     }
 
+    const handleRejectClient = async (userId: string, userBooks: any[]) => {
+        setIsSubmitting(prev => ({ ...prev, [userId]: true }))
+
+        try {
+            const updatePromises = userBooks.map(book => {
+                const payload = {
+                    status_code: 11,
+                    rejected_at: new Date().toISOString()
+                }
+                return supabase.from('books').update(payload).eq('id', book.id)
+            });
+
+            const results = await Promise.all(updatePromises);
+            const errors = results.filter(r => r.error).map(r => r.error?.message);
+            if (errors.length > 0) {
+                throw new Error(`Errores al procesar: ${errors.join(', ')}`);
+            }
+
+            alert('Libros marcados como Cliente no aceptó (status 11).');
+            setLots(prev => prev.filter(lot => lot.user?.id !== userId));
+
+        } catch (e: any) {
+            alert('Error: ' + e.message)
+        } finally {
+            setIsSubmitting(prev => ({ ...prev, [userId]: false }))
+        }
+    }
+
     return (
         <div style={{ minHeight: '100vh', backgroundColor: '#F5F2E7', padding: '3rem 2rem', fontFamily: "'Montserrat', sans-serif" }}>
             <header style={{ maxWidth: '1100px', margin: '0 auto 3rem' }}>
@@ -232,13 +260,22 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
                                                 </div>
                                             )}
 
-                                            <button
-                                                onClick={() => handlePublish(lot.user.id, lot.books)}
-                                                disabled={isSubmitting[lot.user.id]}
-                                                style={{ width: '100%', padding: '1rem', backgroundColor: '#1B3022', color: 'white', borderRadius: '8px', border: 'none', fontWeight: 800, cursor: isSubmitting[lot.user.id] ? 'not-allowed' : 'pointer' }}
-                                            >
-                                                {isSubmitting[lot.user.id] ? 'GUARDANDO...' : 'GUARDAR'}
-                                            </button>
+                                            <div style={{ display: 'flex', gap: '1rem' }}>
+                                                <button
+                                                    onClick={() => handleRejectClient(lot.user.id, lot.books)}
+                                                    disabled={isSubmitting[lot.user.id]}
+                                                    style={{ flex: 1, padding: '1rem', backgroundColor: 'transparent', color: '#c0392b', border: '2px solid #c0392b', borderRadius: '8px', fontWeight: 800, cursor: isSubmitting[lot.user.id] ? 'not-allowed' : 'pointer' }}
+                                                >
+                                                    CLIENTE NO ACEPTÓ
+                                                </button>
+                                                <button
+                                                    onClick={() => handlePublish(lot.user.id, lot.books)}
+                                                    disabled={isSubmitting[lot.user.id]}
+                                                    style={{ flex: 1, padding: '1rem', backgroundColor: '#1B3022', color: 'white', borderRadius: '8px', border: 'none', fontWeight: 800, cursor: isSubmitting[lot.user.id] ? 'not-allowed' : 'pointer' }}
+                                                >
+                                                    {isSubmitting[lot.user.id] ? 'GUARDANDO...' : 'GUARDAR'}
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
