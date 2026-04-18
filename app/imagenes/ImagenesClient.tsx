@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
@@ -10,6 +10,7 @@ type Book = {
   id: string
   title: string
   author: string | null
+  isbn: string | null
   original_front_image_url: string | null
   publish_front_image_url: string | null
   publish_back_image_url: string | null
@@ -104,6 +105,47 @@ export default function ImagenesClient({ books: initialBooks }: { books: Book[] 
   const currentBook = books[currentIndex]
   const total = books.length
   const remaining = total - currentIndex
+
+  // Llamada a OpenLibrary para autollenar portada
+  useEffect(() => {
+    if (!currentBook || !currentBook.isbn) return;
+
+    const fetchCover = async () => {
+      try {
+        const isbn = currentBook.isbn;
+        const res = await fetch(`https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg?default=false`, {
+          headers: {
+            "User-Agent": "LibroLoop (tintaeterna021@gmail.com)",
+            "Accept": "image/jpeg",
+          },
+        });
+        
+        if (res.ok) {
+          const blob = await res.blob();
+          if (blob.type.startsWith('image/')) {
+            const file = new File([blob], `${isbn}_openlibrary.jpg`, { type: blob.type });
+            // Solo pre-llenamos si no hay una imagen elegida manualmente ni una imagen ya existente en BD
+            setCoverFile(prev => {
+              if (!prev && !currentBook.publish_front_image_url) {
+                setCoverPreview(URL.createObjectURL(file));
+                return file;
+              }
+              return prev;
+            });
+          }
+        } else {
+          console.log("No se encontró portada en OpenLibrary");
+        }
+      } catch (err) {
+        console.log("Error consultando OpenLibrary", err);
+      }
+    };
+    
+    // Solo disparamos la búsqueda si actualmente no hay nada seleccionado
+    if (!coverFile && !currentBook.publish_front_image_url) {
+        fetchCover();
+    }
+  }, [currentIndex, currentBook]);
 
   // Limpia los archivos seleccionados
   const resetFiles = () => {
