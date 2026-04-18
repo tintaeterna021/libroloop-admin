@@ -15,8 +15,8 @@ export default async function AdminDashboard() {
   if (orders) {
     orders.forEach(o => {
       ventasTotales += Number(o.total_with_shipping) || 0;
-      // 4 es "entregado", cualquier cosa antes de eso es "pendiente de despachar / en ruta"
-      if (o.status_code < 4) {
+      // Sólo tomamos como "pendientes" estrictos a los Nuevos (status 1)
+      if (o.status_code === 1) {
         pedidosPendientes++;
       }
     })
@@ -33,14 +33,14 @@ export default async function AdminDashboard() {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F5F2E7', padding: '3rem 2rem', fontFamily: "'Montserrat', sans-serif" }}>
-      
+
       {/* Fila 0: Header y tarjetas principales (Ventas y Activos) */}
       <header style={{ maxWidth: '1100px', margin: '0 auto 3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '2rem' }}>
         <div>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2.5rem', color: '#1B3022', fontWeight: 900, marginBottom: '0.5rem' }}>Dashboard Principal</h1>
           <p style={{ color: '#666', fontSize: '0.95rem' }}>Resumen operativo de hoy. Tienes lo vital a un vistazo.</p>
         </div>
-        
+
         <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
           {/* Tarjeta 1 - Ventas Totales */}
           <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '1.5rem', boxShadow: '0 4px 6px rgba(0,0,0,0.03)', borderLeft: '5px solid #1B3022', minWidth: '220px' }}>
@@ -63,7 +63,7 @@ export default async function AdminDashboard() {
       </header>
 
       <main style={{ maxWidth: '1100px', margin: '0 auto' }}>
-        
+
         {/* Fila 1: Lotes esperando aprobación y Pendientes de imagen */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
           {/* Tarjeta 3 - Lotes */}
@@ -94,7 +94,7 @@ export default async function AdminDashboard() {
           {/* Tarjeta 2 - Pedidos Pendientes */}
           <Link href="/pedidos" style={{ textDecoration: 'none', display: 'block' }}>
             <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '1.5rem', boxShadow: '0 4px 6px rgba(0,0,0,0.03)', borderLeft: '5px solid #c0392b', height: '100%' }}>
-              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.8rem', color: '#888', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem' }}>Pedidos Pendientes</p>
+              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.8rem', color: '#888', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem' }}>Órdenes nuevas</p>
               <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '2.5rem', color: '#c0392b', fontWeight: 900 }}>
                 {pedidosPendientes}
               </p>
