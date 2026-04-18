@@ -75,7 +75,7 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
             const result = await codeReader.decodeFromImageElement(backImgRef.current);
             if (result && result.getText()) {
                 const detectedIsbn = result.getText();
-                setForm(prev => ({ ...prev, isbn: detectedIsbn }));
+                setForm((prev: any) => ({ ...prev, isbn: detectedIsbn }));
                 setScanStatus('success');
                 // Auto trigger search
                 handleSearchISBN(detectedIsbn);
@@ -328,7 +328,7 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
                                   ref={backImgRef} 
                                   src={currentBook.original_back_image_url} 
                                   alt="Contraportada" 
-                                  style={{ width: '100%', height: '100%', objectFit: 'contain', transition: 'transform 0.1s ease-out', crossOrigin: 'anonymous' }} 
+                                  style={{ width: '100%', height: '100%', objectFit: 'contain', transition: 'transform 0.1s ease-out' }} 
                                   onLoad={handleBackImageLoad}
                                   crossOrigin="anonymous"
                                 />
