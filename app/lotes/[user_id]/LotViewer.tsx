@@ -28,6 +28,20 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
     const frontImgRef = useRef<HTMLImageElement>(null)
     const backImgRef = useRef<HTMLImageElement>(null)
 
+    // DB Categories for autocomplete
+    const [dbCategories, setDbCategories] = useState<string[]>([])
+
+    useEffect(() => {
+        const fetchDbCategories = async () => {
+            const { data, error } = await supabase.from('books').select('genre')
+            if (!error && data) {
+                const unique = Array.from(new Set(data.map(d => d.genre))).filter(Boolean) as string[]
+                setDbCategories(unique.sort())
+            }
+        }
+        fetchDbCategories()
+    }, [])
+
     useEffect(() => {
         if (books.length > 0 && books[currentIndex]) {
             setForm(books[currentIndex])
@@ -390,7 +404,12 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
                     </div>
                     <div>
                         <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: missingFields.includes('genre') ? '#e74c3c' : '#666', marginBottom: '0.3rem' }}>Género *</label>
-                        <input type="text" value={form.genre || ''} onChange={e => setForm({ ...form, genre: e.target.value })} style={{ width: '100%', padding: '0.7rem', borderRadius: '4px', border: getBorder('genre'), fontSize: '0.9rem' }} />
+                        <input list="category-options" type="text" value={form.genre || ''} onChange={e => setForm({ ...form, genre: e.target.value })} style={{ width: '100%', padding: '0.7rem', borderRadius: '4px', border: getBorder('genre'), fontSize: '0.9rem' }} />
+                        <datalist id="category-options">
+                            {dbCategories.map(cat => (
+                                <option key={cat} value={cat} />
+                            ))}
+                        </datalist>
                     </div>
                     <div>
                         <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: missingFields.includes('page_count') ? '#e74c3c' : '#666', marginBottom: '0.3rem' }}>Páginas</label>
