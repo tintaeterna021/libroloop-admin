@@ -21,8 +21,7 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
     // Red Highlight missing fields API
     const [missingFields, setMissingFields] = useState<string[]>([])
 
-    // ZXing Barcode Scanning State
-    const [scanStatus, setScanStatus] = useState<'idle' | 'scanning' | 'success' | 'failed'>('idle')
+
 
     // Zoom Refs
     const frontImgRef = useRef<HTMLImageElement>(null)
@@ -46,7 +45,6 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
         if (books.length > 0 && books[currentIndex]) {
             setForm(books[currentIndex])
             setMissingFields([])
-            setScanStatus('idle')
         }
     }, [currentIndex, books])
 
@@ -77,28 +75,6 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
         if (!ref.current) return;
         ref.current.style.transformOrigin = 'center';
         ref.current.style.transform = 'scale(1)';
-    }
-
-    // === ZXing Barcode Scan ===
-    const handleBackImageLoad = async () => {
-        if (!backImgRef.current || !currentBook.original_back_image_url) return;
-        setScanStatus('scanning');
-        try {
-            const { BrowserMultiFormatReader } = await import('@zxing/library');
-            const codeReader = new BrowserMultiFormatReader();
-            const result = await codeReader.decodeFromImageElement(backImgRef.current);
-            if (result && result.getText()) {
-                const detectedIsbn = result.getText();
-                setForm((prev: any) => ({ ...prev, isbn: detectedIsbn }));
-                setScanStatus('success');
-                // Auto trigger search
-                handleSearchISBN(detectedIsbn);
-            } else {
-                setScanStatus('failed');
-            }
-        } catch (err) {
-            setScanStatus('failed');
-        }
     }
 
     // === Advanced Metadata Parsing (Tinta Eterna Port) ===
@@ -343,8 +319,6 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
                                   src={currentBook.original_back_image_url} 
                                   alt="Contraportada" 
                                   style={{ width: '100%', height: '100%', objectFit: 'contain', transition: 'transform 0.1s ease-out' }} 
-                                  onLoad={handleBackImageLoad}
-                                  crossOrigin="anonymous"
                                 />
                             ) : <p style={{ textAlign: 'center', marginTop: '40%', color: '#ccc' }}>Sin posterior</p>}
                         </div>
@@ -364,9 +338,6 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
                     <div style={{ flex: 1 }}>
                         <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: '#333', marginBottom: '0.5rem' }}>
                             ISBN *
-                            {scanStatus === 'scanning' && <span style={{ color: '#f39c12', marginLeft: '10px', fontSize: '0.75rem', fontWeight: 600 }}>Escaneando código de barras...</span>}
-                            {scanStatus === 'success' && <span style={{ color: '#2ecc71', marginLeft: '10px', fontSize: '0.75rem', fontWeight: 600 }}>✅ ¡ISBN detectado!</span>}
-                            {scanStatus === 'failed' && <span style={{ color: '#e74c3c', marginLeft: '10px', fontSize: '0.75rem', fontWeight: 600 }}>⚠️ No se detectó código. Capturar manualmente previo a buscar.</span>}
                         </label>
                         <input
                             autoFocus
