@@ -79,33 +79,26 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
 
     // === Advanced Metadata Parsing (Tinta Eterna Port) ===
     const CATEGORY_MAP: Record<string, string> = {
-        "fiction": "Ficción",
-        "juvenile fiction": "Ficción juvenil",
-        "self-help": "Autoayuda",
-        "religion": "Religión",
-        "health & fitness": "Salud y estado físico",
-        "medical": "Medicina",
-        "computers": "Computación",
-        "technology & engineering": "Tecnología e ingeniería",
-        "business & economics": "Negocios y economía",
-        "education": "Educación",
-        "history": "Historia",
-        "art": "Arte",
-        "science": "Ciencia",
-        "mathematics": "Matemáticas",
-        "philosophy": "Filosofía",
-        "psychology": "Psicología",
-        "social science": "Ciencias sociales",
+        "change (psychology)": "Autoayuda y desarrollo personal",
+        "conduct of life": "Autoayuda y desarrollo personal",
+        "self-help": "Autoayuda y desarrollo personal",
         "biography & autobiography": "Biografía y autobiografía",
-        "poetry": "Poesía",
-        "drama": "Drama",
-        "law": "Derecho",
-        "music": "Música",
-        "sports & recreation": "Deportes y recreación",
-        "travel": "Viajes",
-        "cooking": "Cocina",
-        "study aids": "Ayudas de estudio",
-        "foreign language study": "Estudio de idiomas",
+        "family & relationships": "Familia y relaciones",
+        "american fiction": "Ficción",
+        "drama": "Ficción",
+        "fiction": "Ficción",
+        "science fiction": "Ficción",
+        "juvenile fiction": "Ficción juvenil",
+        "young adult fiction": "Ficción juvenil",
+        "philosophy": "Filosofía y pensamiento",
+        "history": "Historia",
+        "juvenile nonfiction": "Juvenil no ficción",
+        "business & economics": "Negocios y economía",
+        "body, mind & spirit": "Religión y espiritualidad",
+        "buddhism": "Religión y espiritualidad",
+        "aging": "Salud y bienestar",
+        "health & fitness": "Salud y bienestar",
+        "science": "Tecnología y ciencia"
     }
 
     // === Handlers ===
@@ -147,10 +140,11 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
             // 3. Condicional de Coincidencias Totales
             if (totalItems === 0) {
                 alert("NINGUNA COINCIDENCIA. El libro no está registrado en Google Books. Captura manualmente.")
-                const allMissing = ["title", "author", "year", "publisher", "genre", "page_count", "language", "description"]
+                const allMissing = ["title", "author", "year", "publisher", "genre", "real_genre", "page_count", "language", "description"]
                 setMissingFields(allMissing)
                 setForm({
                     isbn: cleanIsbn,
+                    real_genre: "",
                     link_amazon: `https://www.amazon.com.mx/s?k=${cleanIsbn}`,
                     link_gandhi: `https://www.gandhi.com.mx/?query=${cleanIsbn}`,
                     link_buscalibre: `https://www.buscalibre.com.mx/libros/search?q=${cleanIsbn}`,
@@ -197,6 +191,7 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
             if (!foundYear) missing.push("year")
             if (!foundPublisher) missing.push("publisher")
             if (!foundGenre) missing.push("genre")
+            if (!volInfo.categories || volInfo.categories.length === 0) missing.push("real_genre")
             if (!foundPageCount) missing.push("page_count")
             if (!foundLanguage) missing.push("language")
             if (!foundDescription) missing.push("description")
@@ -213,6 +208,7 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
                 description: foundDescription,
                 language: foundLanguage,
                 genre: foundGenre,
+                real_genre: volInfo.categories ? volInfo.categories.join(" / ") : "",
                 link_amazon: `https://www.amazon.com.mx/s?k=${cleanIsbn}`,
                 link_gandhi: `https://www.gandhi.com.mx/?query=${cleanIsbn}`,
                 link_buscalibre: `https://www.buscalibre.com.mx/libros/search?q=${cleanIsbn}`,
@@ -241,8 +237,8 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
     }
 
     const handleApprove = async () => {
-        if (!form.isbn || !form.title || !form.author || !form.year || !form.publisher || !form.genre || !form.description || form.original_price === undefined || form.original_price === null || form.original_price === '') {
-            alert("⚠️ Faltan campos obligatorios (*). Completa el ISBN, Título, Autor, Año, Editorial, Género, Descripción y Precio Original antes de aceptar el libro.")
+        if (!form.isbn || !form.title || !form.author || !form.year || !form.publisher || !form.genre || !form.real_genre || !form.description || form.original_price === undefined || form.original_price === null || form.original_price === '') {
+            alert("⚠️ Faltan campos obligatorios (*). Completa el ISBN, Título, Autor, Año, Editorial, Género, Género Real, Descripción y Precio Original antes de aceptar el libro.")
             return
         }
 
@@ -314,11 +310,11 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
                             onMouseLeave={() => handleMouseLeave(backImgRef)}
                         >
                             {currentBook.original_back_image_url ? (
-                                <img 
-                                  ref={backImgRef} 
-                                  src={currentBook.original_back_image_url} 
-                                  alt="Contraportada" 
-                                  style={{ width: '100%', height: '100%', objectFit: 'contain', transition: 'transform 0.1s ease-out' }} 
+                                <img
+                                    ref={backImgRef}
+                                    src={currentBook.original_back_image_url}
+                                    alt="Contraportada"
+                                    style={{ width: '100%', height: '100%', objectFit: 'contain', transition: 'transform 0.1s ease-out' }}
                                 />
                             ) : <p style={{ textAlign: 'center', marginTop: '40%', color: '#ccc' }}>Sin posterior</p>}
                         </div>
@@ -374,6 +370,14 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
                         <input type="text" value={form.publisher || ''} onChange={e => setForm({ ...form, publisher: e.target.value })} style={{ width: '100%', padding: '0.7rem', borderRadius: '4px', border: getBorder('publisher'), fontSize: '0.9rem' }} />
                     </div>
                     <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: missingFields.includes('page_count') ? '#e74c3c' : '#666', marginBottom: '0.3rem' }}>Páginas</label>
+                        <input type="number" value={form.page_count || ''} onChange={e => setForm({ ...form, page_count: parseInt(e.target.value) })} style={{ width: '100%', padding: '0.7rem', borderRadius: '4px', border: getBorder('page_count'), fontSize: '0.9rem' }} />
+                    </div>
+                    <div>
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: missingFields.includes('real_genre') ? '#e74c3c' : '#666', marginBottom: '0.3rem' }}>Género real *</label>
+                        <input type="text" value={form.real_genre || ''} onChange={e => setForm({ ...form, real_genre: e.target.value })} style={{ width: '100%', padding: '0.7rem', borderRadius: '4px', border: getBorder('real_genre'), fontSize: '0.9rem' }} />
+                    </div>
+                    <div>
                         <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: missingFields.includes('genre') ? '#e74c3c' : '#666', marginBottom: '0.3rem' }}>Género *</label>
                         <input list="category-options" type="text" value={form.genre || ''} onChange={e => setForm({ ...form, genre: e.target.value })} style={{ width: '100%', padding: '0.7rem', borderRadius: '4px', border: getBorder('genre'), fontSize: '0.9rem' }} />
                         <datalist id="category-options">
@@ -381,10 +385,6 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
                                 <option key={cat} value={cat} />
                             ))}
                         </datalist>
-                    </div>
-                    <div>
-                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: missingFields.includes('page_count') ? '#e74c3c' : '#666', marginBottom: '0.3rem' }}>Páginas</label>
-                        <input type="number" value={form.page_count || ''} onChange={e => setForm({ ...form, page_count: parseInt(e.target.value) })} style={{ width: '100%', padding: '0.7rem', borderRadius: '4px', border: getBorder('page_count'), fontSize: '0.9rem' }} />
                     </div>
                     <div>
                         <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: missingFields.includes('language') ? '#e74c3c' : '#666', marginBottom: '0.3rem' }}>Idioma</label>
