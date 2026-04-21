@@ -460,6 +460,9 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
                                 <button onClick={() => handleReject('Libro no original')} style={{ width: '100%', padding: '1rem', textAlign: 'center', border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: "'Montserrat'", fontSize: '0.85rem', color: '#333', fontWeight: 700 }}>
                                     Libro no original
                                 </button>
+                                <button onClick={() => handleReject('Error de procesamiento')} style={{ width: '100%', padding: '1rem', textAlign: 'center', border: 'none', borderBottom: '1px solid #eee', background: 'transparent', cursor: 'pointer', fontFamily: "'Montserrat'", fontSize: '0.85rem', color: '#333', fontWeight: 700 }}>
+                                    Error de procesamiento
+                                </button>
                             </div>
                         )}
                     </div>
