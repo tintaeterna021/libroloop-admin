@@ -5,6 +5,26 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { calculatePrices } from '@/lib/pricing'
 
+const ALLOWED_GENRES = [
+    "Ficción",
+    "Ficción juvenil",
+    "Juvenil no ficción",
+    "Autoayuda y desarrollo personal",
+    "Familia y relaciones",
+    "Negocios y economía",
+    "Historia",
+    "Salud y bienestar",
+    "Tecnología y ciencia",
+    "Filosofía y pensamiento",
+    "Religión y espiritualidad",
+    "Biografía y autobiografía",
+    "Cocina y hogar",
+    "Arte y fotografía",
+    "Deportes",
+    "Educación",
+    "Otros"
+]
+
 export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
     const router = useRouter()
     // Data State
@@ -27,19 +47,6 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
     const frontImgRef = useRef<HTMLImageElement>(null)
     const backImgRef = useRef<HTMLImageElement>(null)
 
-    // DB Categories for autocomplete
-    const [dbCategories, setDbCategories] = useState<string[]>([])
-
-    useEffect(() => {
-        const fetchDbCategories = async () => {
-            const { data, error } = await supabase.from('books').select('genre')
-            if (!error && data) {
-                const unique = Array.from(new Set(data.map(d => d.genre))).filter(Boolean) as string[]
-                setDbCategories(unique.sort())
-            }
-        }
-        fetchDbCategories()
-    }, [])
 
     useEffect(() => {
         if (books.length > 0 && books[currentIndex]) {
@@ -161,14 +168,17 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
             const item = data.items[0]
             const volInfo = item.volumeInfo || {}
 
-            // Map Categories
-            let categoriasStr = ""
+            // Map Categories to official list
+            let foundGenre = ""
             if (volInfo.categories && volInfo.categories.length > 0) {
-                const translated = volInfo.categories.map((c: string) => {
-                    const key = c.trim().toLowerCase()
-                    return CATEGORY_MAP[key] || c
-                })
-                categoriasStr = translated.map((cat: string) => cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase()).join(" / ")
+                for (const cat of volInfo.categories) {
+                    const key = cat.trim().toLowerCase()
+                    const mapped = CATEGORY_MAP[key]
+                    if (mapped && ALLOWED_GENRES.includes(mapped)) {
+                        foundGenre = mapped
+                        break
+                    }
+                }
             }
 
             // Map Lang
@@ -183,7 +193,6 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
             const foundPageCount = volInfo.pageCount || ""
             const foundDescription = volInfo.description || ""
             const foundLanguage = lang || ""
-            const foundGenre = categoriasStr
 
             let missing: string[] = []
             if (!foundTitle) missing.push("title")
@@ -379,12 +388,16 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
                     </div>
                     <div>
                         <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: missingFields.includes('genre') ? '#e74c3c' : '#666', marginBottom: '0.3rem' }}>Género *</label>
-                        <input list="category-options" type="text" value={form.genre || ''} onChange={e => setForm({ ...form, genre: e.target.value })} style={{ width: '100%', padding: '0.7rem', borderRadius: '4px', border: getBorder('genre'), fontSize: '0.9rem' }} />
-                        <datalist id="category-options">
-                            {dbCategories.map(cat => (
-                                <option key={cat} value={cat} />
+                        <select 
+                            value={form.genre || ''} 
+                            onChange={e => setForm({ ...form, genre: e.target.value })} 
+                            style={{ width: '100%', padding: '0.7rem', borderRadius: '4px', border: getBorder('genre'), fontSize: '0.9rem', backgroundColor: 'white' }}
+                        >
+                            <option value="">Selecciona un género...</option>
+                            {ALLOWED_GENRES.map(g => (
+                                <option key={g} value={g}>{g}</option>
                             ))}
-                        </datalist>
+                        </select>
                     </div>
                     <div>
                         <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: missingFields.includes('language') ? '#e74c3c' : '#666', marginBottom: '0.3rem' }}>Idioma</label>
