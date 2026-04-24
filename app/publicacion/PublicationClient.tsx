@@ -25,7 +25,7 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
     // Si la selección no se ha hecho, por defecto se tomará opcion2 si no es candidato a opcion1, o vacía si debe elegir.
 
     const handlePublish = async (userId: string, userBooks: any[]) => {
-        const isOption1Available = userBooks.length >= 10;
+        const isOption1Available = userBooks.length >= 2;
 
         // Determinar qué opción aplicar
         let finalOption = selectedOptions[userId];
@@ -131,7 +131,7 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
                 ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                         {lots.map((lot, index) => {
-                            const isOption1Available = lot.books.length >= 10;
+                            const isOption1Available = lot.books.length >= 2;
                             const userName = lot.user?.email ? lot.user.email.split('@')[0] : 'Vendedor';
                             const userPhone = lot.user?.phone ? lot.user.phone.replace(/\D/g, '') : '';
                             const currentSelection = selectedOptions[lot.user.id] || '';
@@ -148,27 +148,28 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
                                 truck: '\u{1F69A}', // 🚚
                                 smile: '\u{1F60A}', // 😊
                                 bulb: '\u{1F4A1}', // 💡
+                                arrow: '\u27A1\uFE0F', // ➡️
+                                chart: '\uD83D\uDCC8', // 📈
                                 sep: '\u2501'.repeat(15), // ━━━━━━━━━━━━━━━
                             }
 
                             let msg = '';
                             if (isOption1Available) {
-                                msg =
-                                    `\u00a1Hola! ${E.wave} Buenas noticias\n\nTus libros est\u00e1n listos para publicarse en *LibroLoop* ${E.books}${E.spark}\n\nTe dejo las dos modalidades:\n\n${E.box} *Opci\u00f3n 1 (Consignaci\u00f3n)*\nNosotros recogemos todos tus libros\n${E.money} Ganas *60%* de la venta\n\n${E.house} *Opci\u00f3n 2 (En casa)*\nT\u00fa los guardas y pasamos cuando se vendan\n${E.money} Ganas *50%*\n\n*Ejemplo:*\n- *T\u00edtulo de tu libro*\n${E.money} Opci\u00f3n 1 - 60% / Opci\u00f3n 2 - 50%\n\n${E.sep}\n${E.books} *Tu ganancia por libro:*\n${E.sep}`;
+                                msg = `\u00a1Hola! ${E.wave} Buenas noticias ${E.books}${E.spark}\nTus libros est\u00e1n listos para publicarse en *LibroLoop*\n${E.sep}\n${E.house} \u00bfC\u00f3mo empezamos?\n${E.sep}\nT\u00fa guardas los libros en casa y los publicamos hoy mismo. En cuanto se venda el primero, nosotros pasamos a tu domicilio a recogerlo. En esta modalidad inicial ganas el 50% de cada venta.\n${E.sep}\n${E.books} Tu ganancia por libro:\n${E.sep}`;
                                 lot.books.forEach((book: any) => {
                                     const { sellerOption1, sellerOption2 } = calculatePrices(book.original_price || 0);
-                                    msg += `\n\n\u2022 *${book.title}*\n  ${E.money} $${sellerOption1} / $${sellerOption2}`;
+                                    msg += `\n\u2022 *${book.title}*\n${E.money} $${sellerOption2}  ${E.arrow}  ${E.box} Sube a $${sellerOption1}`;
                                 });
-                                msg += `\n\n${E.sep}\n\nPuede que algunos de tus t\u00edtulos hayan sido rechazados. Te invitamos a revisar el panel de tus ventas para seguir el estatus de tus ejemplares.\n\n${E.truck} *Recolecci\u00f3n sin costo*\n\n\u00bfQu\u00e9 opci\u00f3n prefieres? ${E.smile} \n\nEn cuanto nos indiques empezaremos a promocionar tus libros. ${E.smile}`;
+                                msg += `\n${E.sep}\n${E.bulb} Tip para ganar m\u00e1s (60%)\n${E.sep}\nComo notar\u00e1s en la lista, hay dos montos. Cuando pasemos a recoger tu primer libro vendido, puedes aprovechar el viaje y dejarnos el resto de tus libros para almacenarlos. ${E.box}\n\u00a1Con esto tu ganancia sube en autom\u00e1tico al 60% (el precio de la derecha) para todas tus ventas futuras!\n${E.sep}\n\u00bfTe parece bien si los publicamos hoy mismo? ${E.smile}`;
                             } else {
-                                msg =
-                                    `\u00a1Hola! ${E.wave} Buenas noticias ${E.books}${E.spark}\n\nTus libros est\u00e1n listos para publicarse en *LibroLoop*\n\n${E.sep}\n${E.house} *Modalidad disponible*\n${E.sep}\n\n*Opci\u00f3n 2 (En casa)*\nT\u00fa guardas los libros y pasamos por ellos conforme se vendan\n\n${E.money} Ganas *50%* del valor de venta\n\n${E.sep}\n${E.books} *Tu ganancia por libro:*\n${E.sep}`;
+                                msg = `\u00a1Hola! ${E.wave} Buenas noticias ${E.books}${E.spark}\nTu libro est\u00e1 listo para publicarse en *LibroLoop*\n${E.sep}\n${E.house} \u00bfC\u00f3mo empezamos?\n${E.sep}\nT\u00fa guardas el libro en casa y lo publicamos hoy mismo. En cuanto se venda, nosotros pasamos a tu domicilio a recogerlo. En esta modalidad inicial ganas el 50% de la venta.\n${E.sep}\n${E.books} Tu ganancia:\n${E.sep}`;
                                 lot.books.forEach((book: any) => {
-                                    const { sellerOption2 } = calculatePrices(book.original_price || 0);
-                                    msg += `\n\n\u2022 *${book.title}*\n  ${E.money} $${sellerOption2}`;
+                                    const { sellerOption1, sellerOption2 } = calculatePrices(book.original_price || 0);
+                                    msg += `\n\u2022 *${book.title}*\n${E.money} $${sellerOption2}  ${E.arrow}  ${E.box} Sube a $${sellerOption1}`;
                                 });
-                                msg += `\n\n${E.sep}\n\nPuede que algunos de tus t\u00edtulos hayan sido rechazados. Te invitamos a revisar el panel de tus ventas para seguir el estatus de tus ejemplares.\n\n${E.bulb} *Tip LibroLoop*\n${E.sep}\n\nSi llegas a *10 libros*, puedes acceder a:\n\n${E.box} *Consignaci\u00f3n*\nNos llevamos todo tu lote desde el inicio\n\n${E.money} Ganas *60%* de la venta\n(Ej: de $160 \u2192 t\u00fa ganas $100 en vez de $80)\n\n${E.sep}\n\n\u00bfTe gustar\u00eda publicar as\u00ed o prefieres agregar m\u00e1s libros para ganar el 60%? ${E.smile}`;
+                                msg += `\n${E.sep}\n${E.bulb} Tip para ganar m\u00e1s (60%)\n${E.sep}\nComo notar\u00e1s, hay dos montos. Ahorita aplicas para el 50%, pero si logras juntar m\u00e1s libros, al momento de tu primera venta nosotros pasamos a recogerlos todos desde el inicio para almacenarlos en nuestra bodega. ${E.box}\n\u00a1Con esto tu ganancia sube en autom\u00e1tico al 60% (el precio de la derecha) para todas tus ventas! ${E.chart}\n${E.sep}\n\u00bfTe parece bien si empezamos a promocionar tu libro? ${E.smile} En cualquier momento puedes subir m\u00e1s libros con tu cuenta.`;
                             }
+
 
                             const waLink = userPhone ? `https://wa.me/${userPhone}?text=${encodeURIComponent(msg)}` : '#';
 
@@ -196,7 +197,7 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
                                             </p>
                                             <p style={{ fontSize: '0.95rem', color: '#888', margin: '0 0 1rem', fontWeight: 500 }}>
                                                 Contiene <strong style={{ color: '#1B3022' }}>{lot.books.length}</strong> libros validados.
-                                                {isOption1Available ? <span style={{ color: '#27ae60', marginLeft: '0.5rem' }}>(Califica para Opción 1 ✨)</span> : <span style={{ color: '#f39c12', marginLeft: '0.5rem' }}>(Solo Opción 50/50 - Menos de 10 libros)</span>}
+                                                {isOption1Available ? <span style={{ color: '#27ae60', marginLeft: '0.5rem' }}>(Califica para Opción 1 ✨)</span> : <span style={{ color: '#f39c12', marginLeft: '0.5rem' }}>(Solo Opción 50/50 - Menos de 2 libros)</span>}
                                             </p>
 
                                             {/* Boton WhatsApp: copia texto y abre WA sin prefill de URL (evita truncacion) */}

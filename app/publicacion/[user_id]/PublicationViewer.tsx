@@ -10,8 +10,8 @@ export default function PublicationViewer({ serverBooks }: { serverBooks: any[] 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedOption, setSelectedOption] = useState<'opcion1' | 'opcion2' | ''>('')
 
-  // El usuario califica a Opción 1 si tiene más de 10 libros
-  const canOfferOption1 = serverBooks.length > 10;
+  // El usuario califica a Opción 1 si tiene más de 1 libro (es decir, 2 o más)
+  const canOfferOption1 = serverBooks.length > 1;
   
   const userName = serverBooks[0]?.profiles?.email?.split('@')[0] || 'Vendedor'
 
@@ -143,7 +143,7 @@ export default function PublicationViewer({ serverBooks }: { serverBooks: any[] 
                        />
                        <div>
                            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#1B3022' }}>Opción 1: Nosotros almacenamos (60%)</div>
-                           <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.3rem' }}>{canOfferOption1 ? 'Gana más, liberan espacio.' : 'Requiere más de 10 libros.'}</div>
+                           <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.3rem' }}>{canOfferOption1 ? 'Gana más, liberan espacio.' : 'Requiere al menos 2 libros.'}</div>
                        </div>
                    </label>
 
