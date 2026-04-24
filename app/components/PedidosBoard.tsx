@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 
 type Order = {
   id: string;
@@ -28,6 +29,7 @@ const COLUMNS = [
 export default function PedidosBoard() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     fetchOrders();
@@ -58,7 +60,6 @@ export default function PedidosBoard() {
 
     if (nextStatus === 2) {
       updateData.preparation_at = now;
-      updateData.payment_confirmed_at = now; // Asumimos que se confirma el pago al pasar a preparación
     } else if (nextStatus === 3) {
       updateData.in_transit_at = now;
     } else if (nextStatus === 4) {
@@ -73,6 +74,18 @@ export default function PedidosBoard() {
     if (error) {
       alert('Error al actualizar el estado del pedido.');
       return;
+    }
+
+    if (nextStatus === 2) {
+      await supabase
+        .from('books')
+        .update({ status_code: 8 })
+        .eq('order_id', orderId);
+    } else if (nextStatus === 4) {
+      await supabase
+        .from('books')
+        .update({ status_code: 9, paid_to_libroloop_at: now })
+        .eq('order_id', orderId);
     }
 
     // Update local state for immediate feedback
@@ -95,39 +108,7 @@ export default function PedidosBoard() {
     });
   };
 
-  const openWhatsApp = (order: Order, status: number) => {
-    let message = '';
-    const orderRef = `#LL-${order.order_number}`;
 
-    switch (status) {
-      case 1:
-        message = `¡Hola ${order.contact_name}! Hemos recibido tu pedido ${orderRef} en LibroLoop. Estamos a la espera de confirmar tu pago para comenzar a prepararlo.`;
-        break;
-      case 2:
-        message = `¡Hola ${order.contact_name}! Queremos confirmarte que el pago de tu pedido ${orderRef} en LibroLoop ha sido recibido. Ya estamos empacando y preparando todo para ti.`;
-        break;
-      case 3:
-        message = `¡Buenas noticias ${order.contact_name}! Tu pedido ${orderRef} de LibroLoop ya se encuentra en ruta y en camino hacia ti.`;
-        break;
-      case 4:
-        message = `¡Hola ${order.contact_name}! Tu pedido ${orderRef} de LibroLoop ha sido marcado como entregado. ¡Esperamos que disfrutes muchísimo tu nueva lectura!`;
-        break;
-    }
-
-    // Default to +52 for Mexico if length is 10 and doesn't start with phone code
-    let phoneNum = order.contact_phone?.trim() || '';
-    if (phoneNum.length === 10) {
-      phoneNum = `52${phoneNum}`;
-    } else if (!phoneNum.startsWith('+')) {
-      // Just prepend 52 if we assume they are mostly from MX. Otherwise let WhatsApp try.
-      phoneNum = phoneNum.replace(/\D/g, '');
-    } else {
-      phoneNum = phoneNum.replace(/\D/g, '');
-    }
-
-    const url = `https://wa.me/${phoneNum}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
-  };
 
   if (loading) {
     return <div style={{ textAlign: 'center', padding: '2rem' }}>Cargando tablero de pedidos...</div>;
@@ -200,9 +181,9 @@ export default function PedidosBoard() {
 
                   <div style={{ display: 'grid', gridTemplateColumns: col.id < 4 ? '1fr 1fr' : '1fr', gap: '0.5rem', marginTop: '0.5rem' }}>
                     <button
-                      onClick={() => openWhatsApp(order, col.id)}
+                      onClick={() => router.push(`/pedidos/${order.id}`)}
                       style={{
-                        backgroundColor: '#25D366',
+                        backgroundColor: '#3498db',
                         color: 'white',
                         border: 'none',
                         borderRadius: '6px',
@@ -219,7 +200,7 @@ export default function PedidosBoard() {
                       onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
                       onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                     >
-                      💬 Wpp
+                      📄 Detalle
                     </button>
 
                     {col.id < 4 && (
