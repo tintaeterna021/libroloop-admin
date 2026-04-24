@@ -54,7 +54,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         .select('id, name, phone')
         .in('id', userIds);
       
-      const profileMap = (profiles || []).reduce((acc, p) => ({ ...acc, [p.id]: { name: p.name, phone: p.phone } }), {});
+      const profileMap: Record<string, any> = (profiles || []).reduce((acc: any, p) => ({ ...acc, [p.id]: { name: p.name, phone: p.phone } }), {});
       
       enrichedBooks = enrichedBooks.map(b => ({
         ...b,

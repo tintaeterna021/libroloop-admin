@@ -201,7 +201,7 @@ export default function OrderDetailClient({ order, books, address }: { order: Or
                       👤 {seller}
                     </h3>
                     <button
-                      onClick={() => openSellerWhatsApp(seller, sellerBooks)}
+                      onClick={() => openSellerWhatsApp(seller, sellerBooks as any[])}
                       style={{
                         backgroundColor: '#25D366',
                         color: 'white',
@@ -222,7 +222,7 @@ export default function OrderDetailClient({ order, books, address }: { order: Or
                       💬 Solicitar
                     </button>
                   </div>
-                  {sellerBooks.map((book) => (
+                  {(sellerBooks as any[]).map((book: any) => (
                     <div key={book.id} style={{ display: 'flex', gap: '1rem', padding: '1rem', border: '1px solid #eee', borderRadius: '8px', backgroundColor: '#fffdfa' }}>
                       <div style={{ width: '60px', height: '80px', backgroundColor: '#f5f5f5', borderRadius: '4px', overflow: 'hidden', flexShrink: 0 }}>
                         {(book.publish_front_image_url || book.original_front_image_url) ? (
