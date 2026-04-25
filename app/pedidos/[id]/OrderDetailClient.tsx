@@ -44,10 +44,10 @@ export default function OrderDetailClient({ order, books, address }: { order: Or
         const formattedDate = nextSunday.toLocaleDateString('es-MX', { day: 'numeric', month: 'long' });
         const restante = (order.total_with_shipping * 0.9).toFixed(2);
         const cashNote = order.payment_method === 'efectivo' ? ' Como tu pago será en efectivo, te pedimos de favor intentar tener el cambio exacto.' : '';
-        const addressText = address 
+        const addressText = address
           ? `${address.street} ${address.external_number} ${address.internal_number ? `Int. ${address.internal_number}` : ''}, Col. ${address.neighborhood}, C.P. ${address.postal_code}`
           : 'Dirección no registrada';
-        
+
         message = `¡Hola ${order.contact_name}! Queremos confirmarte que el pago de tu pedido ${orderRef} en LibroLoop ha sido recibido y ya estamos preparando todo para ti.\n\nTe recordamos que todos nuestros pedidos se entregan los días domingo. Tu pedido está programado para entregarse el próximo domingo ${formattedDate}. La hora exacta de entrega la confirmaremos más adelante.\n\nTu pedido será entregado en:\n📍 ${addressText}\n\n¿Nos podrías confirmar que esta dirección sea la correcta?\n\nQueda pendiente el pago restante de $${restante}.${cashNote}`;
         break;
       case 3:
@@ -90,7 +90,7 @@ export default function OrderDetailClient({ order, books, address }: { order: Or
       alert('El vendedor no tiene número de teléfono registrado.');
       return;
     }
-    
+
     if (phoneNum.length === 10) {
       phoneNum = `52${phoneNum}`;
     } else if (!phoneNum.startsWith('+')) {
@@ -176,9 +176,27 @@ export default function OrderDetailClient({ order, books, address }: { order: Or
               <span style={{ fontWeight: 600 }}>${order.shipping_cost || 0}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#333', fontSize: '1.1rem', fontWeight: 800 }}>Total Pagado:</span>
+              <span style={{ color: '#333', fontSize: '1.1rem', fontWeight: 800 }}>Total:</span>
               <span style={{ color: '#333', fontSize: '1.1rem', fontWeight: 800 }}>${order.total_with_shipping}</span>
             </div>
+            {order.status_code === 1 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px dashed #ddd' }}>
+                <span style={{ color: '#555', fontWeight: 600 }}>Adelanto 10%:</span>
+                <span style={{ fontWeight: 800, color: '#e67e22' }}>${(order.total_with_shipping * 0.1).toFixed(2)}</span>
+              </div>
+            )}
+            {(order.status_code === 2 || order.status_code === 3) && (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px dashed #ddd' }}>
+                  <span style={{ color: '#555' }}>Adelanto 10%:</span>
+                  <span style={{ fontWeight: 600, color: '#e74c3c' }}>- ${(order.total_with_shipping * 0.1).toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem' }}>
+                  <span style={{ color: '#333', fontSize: '1.1rem', fontWeight: 800 }}>Restante:</span>
+                  <span style={{ color: '#333', fontSize: '1.1rem', fontWeight: 800 }}>${(order.total_with_shipping * 0.9).toFixed(2)}</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
