@@ -1,5 +1,7 @@
 'use client';
 
+import { supabase } from '@/lib/supabase';
+
 type Order = {
   id: string;
   order_number: number;
@@ -25,6 +27,28 @@ export default function OrderDetailClient({ order, books, address }: { order: Or
       case 3: return '🟣 En Ruta';
       case 4: return '🟢 Entregados';
       default: return 'Desconocido';
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    if (window.confirm('¿Estás seguro de que deseas anular esta orden? Esta acción no se puede deshacer.')) {
+      try {
+        await supabase
+          .from('books')
+          .update({ status_code: 6, order_id: null })
+          .eq('order_id', order.id);
+
+        await supabase
+          .from('orders')
+          .delete()
+          .eq('id', order.id);
+
+        alert('Orden anulada exitosamente.');
+        window.location.href = '/pedidos';
+      } catch (error) {
+        console.error(error);
+        alert('Hubo un error al anular la orden.');
+      }
     }
   };
 
@@ -198,6 +222,27 @@ export default function OrderDetailClient({ order, books, address }: { order: Or
               </>
             )}
           </div>
+
+          <button
+            onClick={handleCancelOrder}
+            style={{
+              marginTop: '1.5rem',
+              width: '100%',
+              backgroundColor: '#fff',
+              color: '#e74c3c',
+              border: '1px solid #e74c3c',
+              borderRadius: '8px',
+              padding: '0.8rem',
+              fontSize: '0.9rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#e74c3c'; e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.color = '#e74c3c'; }}
+          >
+            ❌ Anular Orden
+          </button>
         </div>
       </div>
 
