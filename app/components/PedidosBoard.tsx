@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import OrderDrawer from './OrderDrawer';
 
 type Order = {
   id: string;
@@ -29,6 +30,7 @@ const COLUMNS = [
 export default function PedidosBoard() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -181,7 +183,7 @@ export default function PedidosBoard() {
 
                   <div style={{ display: 'grid', gridTemplateColumns: col.id < 4 ? '1fr 1fr' : '1fr', gap: '0.5rem', marginTop: '0.5rem' }}>
                     <button
-                      onClick={() => router.push(`/pedidos/${order.id}`)}
+                      onClick={() => setSelectedOrderId(order.id)}
                       style={{
                         backgroundColor: '#3498db',
                         color: 'white',
@@ -239,6 +241,10 @@ export default function PedidosBoard() {
           );
         })}
       </div>
+
+      {selectedOrderId && (
+        <OrderDrawer orderId={selectedOrderId} onClose={() => setSelectedOrderId(null)} />
+      )}
     </section>
   );
 }
