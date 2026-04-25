@@ -192,9 +192,14 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
                                                     Listo para publicar
                                                 </span>
                                             </div>
-                                            <p style={{ fontSize: '1.1rem', color: '#1A1A1A', fontWeight: 600, margin: '0 0 1rem' }}>
+                                            <p style={{ fontSize: '1.1rem', color: '#1A1A1A', fontWeight: 600, margin: '0 0 0.25rem' }}>
                                                 Vendedor: <span style={{ fontWeight: 800 }}>{userName}</span>
                                             </p>
+                                            {userPhone && (
+                                                <p style={{ fontSize: '0.95rem', margin: '0 0 1rem' }}>
+                                                    WhatsApp: <a href={`https://wa.me/${userPhone}`} target="_blank" rel="noopener noreferrer" style={{ color: '#25D366', fontWeight: 800, textDecoration: 'none' }}>{lot.user.phone}</a>
+                                                </p>
+                                            )}
                                             <p style={{ fontSize: '0.95rem', color: '#888', margin: '0 0 1rem', fontWeight: 500 }}>
                                                 Contiene <strong style={{ color: '#1B3022' }}>{lot.books.length}</strong> libros validados.
                                                 {isOption1Available ? <span style={{ color: '#27ae60', marginLeft: '0.5rem' }}>(Califica para Opción 1 ✨)</span> : <span style={{ color: '#f39c12', marginLeft: '0.5rem' }}>(Solo Opción 50/50 - Menos de 2 libros)</span>}
