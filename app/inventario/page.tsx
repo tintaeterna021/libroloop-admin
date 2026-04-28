@@ -14,5 +14,5 @@ export default async function InventarioPage() {
     return <div style={{ padding: '2rem', color: 'red' }}>Error loading inventory: {error.message}</div>;
   }
 
-  return <InventoryClient initialBooks={books || []} />;
+  return <InventoryClient initialBooks={(books as any) || []} />;
 }
