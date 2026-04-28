@@ -98,8 +98,8 @@ export default function OrderDetailClient({ order, books, address }: { order: Or
   };
 
 
-  const booksNotStored = books.filter(b => b.storage_option === 'opcion1' || b.storage_option === 'opcion2');
-  const booksStored = books.filter(b => b.storage_option === 'opcion0').sort((a, b) => a.title.localeCompare(b.title));
+  const booksNotStored = books.filter(b => b.storage_option === '1' || b.storage_option === '2');
+  const booksStored = books.filter(b => b.storage_option === '0').sort((a, b) => a.title.localeCompare(b.title));
 
   const groupedNotStored = booksNotStored.reduce((acc, book) => {
     const seller = book.seller_name || 'Vendedor Desconocido';

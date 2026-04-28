@@ -64,7 +64,7 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
                     sale_price: prices.salePrice,
                     seller_payout_amount: sellerPayout,
                     profit_amount: profit,
-                    storage_option: finalOption
+                    storage_option: finalOption === 'opcion1' ? '1' : '2'
                 }
 
                 return supabase.from('books').update(payload).eq('id', book.id)
