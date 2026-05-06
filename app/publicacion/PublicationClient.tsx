@@ -195,6 +195,9 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
                                             <p style={{ fontSize: '1.1rem', color: '#1A1A1A', fontWeight: 600, margin: '0 0 0.25rem' }}>
                                                 Vendedor: <span style={{ fontWeight: 800 }}>{userName}</span>
                                             </p>
+                                            <p style={{ fontSize: '0.95rem', margin: '0 0 0.25rem' }}>
+                                                Correo: <span style={{ fontWeight: 800 }}>{lot.user?.email || 'N/A'}</span>
+                                            </p>
                                             {userPhone && (
                                                 <p style={{ fontSize: '0.95rem', margin: '0 0 1rem' }}>
                                                     WhatsApp: <a href={`https://wa.me/${userPhone}`} target="_blank" rel="noopener noreferrer" style={{ color: '#25D366', fontWeight: 800, textDecoration: 'none' }}>{lot.user.phone}</a>
