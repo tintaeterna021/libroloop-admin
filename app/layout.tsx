@@ -65,11 +65,14 @@ export default function RootLayout({
               <Link href="/pedidos" style={linkStyle}>
                 Gestión de Pedidos
               </Link>
-              <Link href="/inventario" style={linkStyle}>
-                Inventario General
+              <Link href="/consignaciones" style={linkStyle}>
+                Contratos de consignación
               </Link>
               <Link href="/finanzas" style={linkStyle}>
                 Finanzas y Pagos
+              </Link>
+              <Link href="/inventario" style={linkStyle}>
+                Inventario General
               </Link>
               <Link href="/usuarios" style={linkStyle}>
                 Directorio Usuarios
