@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { supabase } from '@/lib/supabase'
+import { partitionConsignacionUsers, PROFILES_CONSIGNACION_SELECT } from '@/lib/consignacionesPending'
 import Link from 'next/link'
 
 export default async function AdminDashboard() {
@@ -30,6 +31,14 @@ export default async function AdminDashboard() {
 
   // 5. Libros pendientes de imágenes: status_code = 5
   const { count: librosPendientesImagenes } = await supabase.from('books').select('*', { count: 'exact', head: true }).eq('status_code', 5)
+
+  // 6. Contratos de consignación pendientes de generar (misma lógica que /consignaciones)
+  const { data: profilesConsignacion, error: consignacionErr } = await supabase
+    .from('profiles')
+    .select(PROFILES_CONSIGNACION_SELECT)
+
+  const contratosPendientesGenerar =
+    !consignacionErr && profilesConsignacion ? partitionConsignacionUsers(profilesConsignacion).pending.length : 0
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F5F2E7', padding: '3rem 2rem', fontFamily: "'Montserrat', sans-serif" }}>
@@ -64,8 +73,8 @@ export default async function AdminDashboard() {
 
       <main style={{ maxWidth: '1100px', margin: '0 auto' }}>
 
-        {/* Fila 1: Lotes esperando aprobación y Pendientes de imagen */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
+        {/* Fila 1: Lotes, imágenes y contratos consignación */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
           {/* Tarjeta 3 - Lotes */}
           <Link href="/lotes" style={{ textDecoration: 'none', display: 'block' }}>
             <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '1.5rem', boxShadow: '0 4px 6px rgba(0,0,0,0.03)', borderLeft: '5px solid #f39c12', height: '100%' }}>
@@ -87,10 +96,13 @@ export default async function AdminDashboard() {
               <p style={{ fontSize: '0.75rem', color: '#8e44ad', marginTop: '0.5rem', fontWeight: 600 }}>Sin foto de publicación aún</p>
             </div>
           </Link>
+
+          {/* Contratos consignación pendientes de generar */}
+          
         </div>
 
         {/* Fila 2: Pedidos Pendientes */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem', marginBottom: '3rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
           {/* Tarjeta 2 - Pedidos Pendientes */}
           <Link href="/pedidos" style={{ textDecoration: 'none', display: 'block' }}>
             <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '1.5rem', boxShadow: '0 4px 6px rgba(0,0,0,0.03)', borderLeft: '5px solid #c0392b', height: '100%' }}>
@@ -99,6 +111,21 @@ export default async function AdminDashboard() {
                 {pedidosPendientes}
               </p>
               <p style={{ fontSize: '0.75rem', color: '#c0392b', marginTop: '0.5rem', fontWeight: 600 }}>Requieren ser despachados</p>
+            </div>
+          </Link>
+          <Link href="/consignaciones" style={{ textDecoration: 'none', display: 'block' }}>
+            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '1.5rem', boxShadow: '0 4px 6px rgba(0,0,0,0.03)', borderLeft: '5px solid #1B3022', height: '100%' }}>
+              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.8rem', color: '#888', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem' }}>Contratos consignación</p>
+              <p style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '2.5rem', color: '#1B3022', fontWeight: 900 }}>
+                {consignacionErr ? '—' : contratosPendientesGenerar}
+              </p>
+              <p style={{ fontSize: '0.75rem', color: contratosPendientesGenerar > 0 ? '#c0392b' : '#27ae60', marginTop: '0.5rem', fontWeight: 600 }}>
+                {consignacionErr
+                  ? 'No se pudo cargar el estado'
+                  : contratosPendientesGenerar > 0
+                    ? 'Pendientes de generar PDF'
+                    : 'Todo al día'}
+              </p>
             </div>
           </Link>
         </div>
