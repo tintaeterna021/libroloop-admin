@@ -21,7 +21,8 @@ export default async function ConsignacionesPage() {
       contratos_consignacion (
         id,
         created_at,
-        pdf_url
+        pdf_url,
+        folio
       )
     `);
 
