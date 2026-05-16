@@ -37,7 +37,7 @@ export function partitionConsignacionUsers(users: UserRow[]) {
 
   for (const user of users) {
     const allStorageBooks = (user.books ?? []).filter(
-      (b: any) => b.storage_option === '0' && [6, 7, 8, 9].includes(b.status_code)
+      (b: any) => b.storage_option === 0 && [6, 7, 8, 9].includes(b.status_code)
     );
 
     if (allStorageBooks.length === 0) continue;
