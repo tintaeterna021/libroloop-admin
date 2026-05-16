@@ -11,7 +11,7 @@ type Book = {
   internal_comment: string | null;
   created_at: string;
   storage_option: string | null;
-  profiles: { email: string } | { email: string }[] | null;
+  profiles: { phone: string } | { phone: string }[] | null;
 };
 
 const STATUS_MAP: Record<number, string> = {
@@ -60,10 +60,10 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
-  const getEmail = (profiles: Book['profiles']) => {
+  const getPhone = (profiles: Book['profiles']) => {
     if (!profiles) return '';
-    if (Array.isArray(profiles)) return profiles[0]?.email || '';
-    return profiles.email || '';
+    if (Array.isArray(profiles)) return profiles[0]?.phone || '';
+    return profiles.phone || '';
   };
 
   const handleSort = (key: string) => {
@@ -89,7 +89,7 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
       result = result.filter(book => {
         let value = '';
         if (key === 'title') value = book.title || '';
-        if (key === 'owner') value = getEmail(book.profiles) || book.user_id || '';
+        if (key === 'owner') value = getPhone(book.profiles) || book.user_id || '';
         if (key === 'price') value = String(book.sale_price || '');
         if (key === 'status') value = STATUS_MAP[book.status_code] || String(book.status_code);
         if (key === 'storage') value = STORAGE_MAP[book.storage_option || ''] || book.storage_option || '';
@@ -117,8 +117,8 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
 
         // Specific handling for derived columns
         if (sortConfig.key === 'owner') {
-          aVal = getEmail(a.profiles) || a.user_id;
-          bVal = getEmail(b.profiles) || b.user_id;
+          aVal = getPhone(a.profiles) || a.user_id;
+          bVal = getPhone(b.profiles) || b.user_id;
         } else if (sortConfig.key === 'days') {
           aVal = getDaysInStore(a.created_at);
           bVal = getDaysInStore(b.created_at);
@@ -230,7 +230,7 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
                   return (
                     <tr key={book.id} style={{ borderBottom: '1px solid #eee', transition: 'background-color 0.2s', ...({ ':hover': { backgroundColor: '#f9f9f9' } } as any) }}>
                       <td style={{ padding: '1rem', fontWeight: 600 }}>{book.title}</td>
-                      <td style={{ padding: '1rem', fontSize: '0.9rem' }}>{getEmail(book.profiles) || 'Desconocido'}</td>
+                      <td style={{ padding: '1rem', fontSize: '0.9rem' }}>{getPhone(book.profiles) || 'Desconocido'}</td>
                       <td style={{ padding: '1rem', fontWeight: 700, color: '#1B3022' }}>
                         {book.sale_price != null ? `$${book.sale_price}` : '-'}
                       </td>

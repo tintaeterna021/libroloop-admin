@@ -7,7 +7,7 @@ export default async function InventarioPage() {
   // Fetch books with their related user profiles
   const { data: books, error } = await supabase
     .from('books')
-    .select('id, user_id, title, sale_price, status_code, internal_comment, created_at, storage_option, profiles(email)')
+    .select('id, user_id, title, sale_price, status_code, internal_comment, created_at, storage_option, profiles(phone)')
     .order('created_at', { ascending: false });
 
   if (error) {
