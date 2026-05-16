@@ -11,7 +11,7 @@ type Book = {
   status_code: number;
   internal_comment: string | null;
   created_at: string;
-  storage_option: string | null;
+  storage_option: number | null;
   profiles: { phone: string } | { phone: string }[] | null;
 };
 
@@ -30,10 +30,10 @@ const STATUS_MAP: Record<number, string> = {
   13: 'Descuento aplicado'
 };
 
-const STORAGE_MAP: Record<string, string> = {
-  '0': 'Bodega LibroLoop',
-  '1': 'Bodega LibroLoop (por recolectar)',
-  '2': 'Con el Vendedor',
+const STORAGE_MAP: Record<number, string> = {
+  0: 'Bodega LibroLoop',
+  1: 'Bodega LibroLoop (por recolectar)',
+  2: 'Con el Vendedor',
 };
 
 type SortConfig = {
@@ -58,8 +58,8 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleRecolectar = async () => {
-    // Filtrar solo los libros seleccionados que tengan storage_option === '1' (Bodega LL por recolectar)
-    const eligibleBooks = books.filter(b => selectedIds.has(b.id) && b.storage_option === '1');
+    // Filtrar solo los libros seleccionados que tengan storage_option === 1 (Bodega LL por recolectar)
+    const eligibleBooks = books.filter(b => selectedIds.has(b.id) && b.storage_option === 1);
     if (eligibleBooks.length === 0) {
       alert('No hay libros seleccionados válidos para recolectar (deben estar en "Bodega LibroLoop (por recolectar)").');
       return;
@@ -75,7 +75,7 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
     const { error } = await supabase
       .from('books')
       .update({ 
-        storage_option: '0', 
+        storage_option: 0, 
         recolected_at: new Date().toISOString() 
       })
       .in('id', idsToUpdate);
@@ -87,7 +87,7 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
       // Actualizar estado local
       setBooks(prev => prev.map(book => {
         if (idsToUpdate.includes(book.id)) {
-          return { ...book, storage_option: '0' };
+          return { ...book, storage_option: 0 };
         }
         return book;
       }));
@@ -160,14 +160,14 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
         if (key === 'owner') value = getPhone(book.profiles) || book.user_id || '';
         if (key === 'price') value = String(book.sale_price || '');
         if (key === 'status') value = STATUS_MAP[book.status_code] || String(book.status_code);
-        if (key === 'storage') value = STORAGE_MAP[book.storage_option || ''] || book.storage_option || '';
+        if (key === 'storage') value = (book.storage_option !== null ? STORAGE_MAP[book.storage_option] : '') || String(book.storage_option ?? '');
         return value.toLowerCase().includes(query);
       });
     });
 
     // Dropdown Filters
     if (storageFilter !== 'todos') {
-      result = result.filter(book => book.storage_option === storageFilter);
+      result = result.filter(book => book.storage_option === parseInt(storageFilter, 10));
     }
     if (statusFilter !== 'todos') {
       result = result.filter(book => String(book.status_code) === statusFilter);
@@ -194,8 +194,8 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
           aVal = STATUS_MAP[a.status_code] || '';
           bVal = STATUS_MAP[b.status_code] || '';
         } else if (sortConfig.key === 'storage_name') {
-          aVal = STORAGE_MAP[a.storage_option || ''] || '';
-          bVal = STORAGE_MAP[b.storage_option || ''] || '';
+          aVal = a.storage_option !== null ? (STORAGE_MAP[a.storage_option] || '') : '';
+          bVal = b.storage_option !== null ? (STORAGE_MAP[b.storage_option] || '') : '';
         }
 
         if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
@@ -341,7 +341,7 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
                 filteredAndSortedBooks.map((book) => {
                   const days = getDaysInStore(book.created_at);
                   const statusName = STATUS_MAP[book.status_code] || 'Desconocido';
-                  const storageName = STORAGE_MAP[book.storage_option || ''] || book.storage_option || 'N/A';
+                  const storageName = book.storage_option !== null ? (STORAGE_MAP[book.storage_option] || String(book.storage_option)) : 'N/A';
 
                   const isSelected = selectedIds.has(book.id);
 
