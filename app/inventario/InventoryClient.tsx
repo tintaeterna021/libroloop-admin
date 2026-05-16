@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { supabase } from '@/lib/supabase';
 
 type Book = {
   id: string;
@@ -51,6 +52,73 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
 
   // Sorting
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
+
+  // Selection
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleRecolectar = async () => {
+    // Filtrar solo los libros seleccionados que tengan storage_option === '1' (Bodega LL por recolectar)
+    const eligibleBooks = books.filter(b => selectedIds.has(b.id) && b.storage_option === '1');
+    if (eligibleBooks.length === 0) {
+      alert('No hay libros seleccionados válidos para recolectar (deben estar en "Bodega LibroLoop (por recolectar)").');
+      return;
+    }
+
+    if (!confirm(`¿Estás seguro de marcar ${eligibleBooks.length} libro(s) como recolectado(s)?`)) return;
+
+    setIsUpdating(true);
+    
+    const idsToUpdate = eligibleBooks.map(b => b.id);
+    
+    // Actualizar en Supabase
+    const { error } = await supabase
+      .from('books')
+      .update({ 
+        storage_option: '0', 
+        recolected_at: new Date().toISOString() 
+      })
+      .in('id', idsToUpdate);
+
+    if (error) {
+      console.error('Error recolectando libros:', error);
+      alert('Hubo un error al actualizar los libros.');
+    } else {
+      // Actualizar estado local
+      setBooks(prev => prev.map(book => {
+        if (idsToUpdate.includes(book.id)) {
+          return { ...book, storage_option: '0' };
+        }
+        return book;
+      }));
+      // Deseleccionar los actualizados
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        idsToUpdate.forEach(id => next.delete(id));
+        return next;
+      });
+      alert(`Se recolectaron ${eligibleBooks.length} libro(s) exitosamente.`);
+    }
+    
+    setIsUpdating(false);
+  };
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredAndSortedBooks.map((b) => b.id)));
+    }
+  };
+
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   // Helper: calculate days in store
   const getDaysInStore = (dateString: string) => {
@@ -139,13 +207,50 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
     return result;
   }, [books, columnSearch, storageFilter, ageFilter, statusFilter, sortConfig]);
 
+  // Derived selection state (depends on filteredAndSortedBooks)
+  const isAllSelected =
+    filteredAndSortedBooks.length > 0 &&
+    filteredAndSortedBooks.every((b) => selectedIds.has(b.id));
+
+  const isIndeterminate =
+    !isAllSelected && filteredAndSortedBooks.some((b) => selectedIds.has(b.id));
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F5F2E7', padding: '2rem', fontFamily: "'Montserrat', sans-serif" }}>
-      <header style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2.2rem', color: '#1B3022', fontWeight: 900, marginBottom: '0.5rem' }}>
-          Inventario General
-        </h1>
-        <p style={{ color: '#666', fontSize: '0.95rem' }}>Gestión avanzada de libros, filtros y estados operativos.</p>
+      <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2.2rem', color: '#1B3022', fontWeight: 900, marginBottom: '0.5rem' }}>
+            Inventario General
+          </h1>
+          <p style={{ color: '#666', fontSize: '0.95rem' }}>Gestión avanzada de libros, filtros y estados operativos.</p>
+        </div>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button
+            onClick={handleRecolectar}
+            disabled={isUpdating || selectedIds.size === 0}
+            style={{
+              backgroundColor: isUpdating || selectedIds.size === 0 ? '#ccc' : '#4CAF82',
+              color: 'white',
+              border: 'none',
+              padding: '0.8rem 1.5rem',
+              borderRadius: '8px',
+              fontWeight: 600,
+              cursor: isUpdating || selectedIds.size === 0 ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              boxShadow: isUpdating || selectedIds.size === 0 ? 'none' : '0 4px 10px rgba(76, 175, 130, 0.3)'
+            }}
+            title="Cambiar estado a 'Bodega LibroLoop' y establecer fecha de recolección"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            {isUpdating ? 'Procesando...' : 'Recolectar'}
+          </button>
+        </div>
       </header>
 
 
@@ -156,6 +261,17 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead style={{ backgroundColor: '#1B3022', color: 'white' }}>
               <tr>
+                {/* Checkbox select-all */}
+                <th style={{ padding: '1rem', borderBottom: '2px solid #ddd', width: '48px', textAlign: 'center' }}>
+                  <input
+                    type="checkbox"
+                    checked={isAllSelected}
+                    ref={(el) => { if (el) el.indeterminate = isIndeterminate; }}
+                    onChange={toggleSelectAll}
+                    style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#4CAF82' }}
+                    title={isAllSelected ? 'Deseleccionar todos' : 'Seleccionar todos'}
+                  />
+                </th>
                 <th style={{ padding: '1rem', borderBottom: '2px solid #ddd', minWidth: '250px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleSort('title')}>
                     <span>Título</span>
@@ -211,7 +327,7 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
                     <option value="2">Con el Vendedor</option>
                   </select>
                 </th>
-                <th style={{ padding: '1rem', borderBottom: '2px solid #ddd', textAlign: 'center' }}>
+                <th style={{ padding: '1rem', borderBottom: '2px solid #ddd', textAlign: 'center', width: '80px' }}>
                   Acciones
                 </th>
               </tr>
@@ -219,7 +335,7 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
             <tbody>
               {filteredAndSortedBooks.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ padding: '2rem', textAlign: 'center', color: '#888' }}>No se encontraron libros.</td>
+                  <td colSpan={8} style={{ padding: '2rem', textAlign: 'center', color: '#888' }}>No se encontraron libros.</td>
                 </tr>
               ) : (
                 filteredAndSortedBooks.map((book) => {
@@ -227,8 +343,26 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
                   const statusName = STATUS_MAP[book.status_code] || 'Desconocido';
                   const storageName = STORAGE_MAP[book.storage_option || ''] || book.storage_option || 'N/A';
 
+                  const isSelected = selectedIds.has(book.id);
+
                   return (
-                    <tr key={book.id} style={{ borderBottom: '1px solid #eee', transition: 'background-color 0.2s', ...({ ':hover': { backgroundColor: '#f9f9f9' } } as any) }}>
+                    <tr
+                      key={book.id}
+                      style={{
+                        borderBottom: '1px solid #eee',
+                        transition: 'background-color 0.15s',
+                        backgroundColor: isSelected ? '#eef7f2' : 'transparent',
+                      }}
+                    >
+                      {/* Checkbox individual */}
+                      <td style={{ padding: '1rem', textAlign: 'center' }}>
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelectOne(book.id)}
+                          style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#4CAF82' }}
+                        />
+                      </td>
                       <td style={{ padding: '1rem', fontWeight: 600 }}>{book.title}</td>
                       <td style={{ padding: '1rem', fontSize: '0.9rem' }}>{getPhone(book.profiles) || 'Desconocido'}</td>
                       <td style={{ padding: '1rem', fontWeight: 700, color: '#1B3022' }}>
@@ -258,11 +392,26 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
                       </td>
                       <td style={{ padding: '1rem', fontSize: '0.9rem' }}>{storageName}</td>
                       <td style={{ padding: '1rem', textAlign: 'center' }}>
-                        <div style={{ position: 'relative', display: 'inline-block' }}>
-                          <button style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', padding: '0.2rem 0.5rem' }}>
-                            ⋮
-                          </button>
-                        </div>
+                        <button
+                          title="Ver detalles"
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: '0.3rem',
+                            borderRadius: '6px',
+                            color: '#1B3022',
+                            transition: 'background-color 0.15s',
+                            lineHeight: 1,
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#e8f5ee')}
+                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                          </svg>
+                        </button>
                       </td>
                     </tr>
                   )
@@ -273,8 +422,17 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
         </div>
       </div>
 
-      <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#666', textAlign: 'right' }}>
-        Total de registros: {filteredAndSortedBooks.length}
+      <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#666', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          {selectedIds.size > 0 && (
+            <span style={{ fontWeight: 600, color: '#1B3022', backgroundColor: '#eef7f2', padding: '0.4rem 0.8rem', borderRadius: '999px', display: 'inline-block' }}>
+              {selectedIds.size} {selectedIds.size === 1 ? 'libro seleccionado' : 'libros seleccionados'}
+            </span>
+          )}
+        </div>
+        <div>
+          Total de registros: {filteredAndSortedBooks.length}
+        </div>
       </div>
     </div>
   );
