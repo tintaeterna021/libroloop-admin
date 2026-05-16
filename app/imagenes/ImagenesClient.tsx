@@ -237,6 +237,53 @@ export default function ImagenesClient({ books: initialBooks }: { books: Book[] 
     }
   }
 
+  const handleDarDeBaja = async () => {
+    if (!confirm('¿Estás seguro de dar de baja este libro por falta de foto aceptable?')) return;
+    
+    setUploading(true)
+    try {
+      const updates = {
+        status_code: 11,
+        rejected_at: new Date().toISOString(),
+        rejection_comment: 'Sin foto de portada aceptable para publicar'
+      }
+
+      const { error } = await supabase.from('books').update(updates).eq('id', currentBook.id)
+      if (error) throw error
+
+      advance()
+    } catch (e: any) {
+      alert('Error: ' + e.message)
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handlePublishWithOriginal = async () => {
+    if (!currentBook.original_front_image_url) {
+      alert('Este libro no tiene una foto original del vendedor.');
+      return;
+    }
+    
+    setUploading(true)
+    try {
+      const updates = {
+        status_code: 6,
+        published_at: new Date().toISOString(),
+        publish_front_image_url: currentBook.original_front_image_url
+      }
+
+      const { error } = await supabase.from('books').update(updates).eq('id', currentBook.id)
+      if (error) throw error
+
+      advance()
+    } catch (e: any) {
+      alert('Error: ' + e.message)
+    } finally {
+      setUploading(false)
+    }
+  }
+
 
   const links = [
     currentBook.link_amazon && { label: 'Amazon', url: currentBook.link_amazon },
@@ -368,8 +415,68 @@ export default function ImagenesClient({ books: initialBooks }: { books: Book[] 
           {/* Botones */}
           <div style={{
             padding: '1.5rem 2.5rem 2.5rem',
-            display: 'flex', gap: '1rem'
+            display: 'flex', gap: '1rem', flexWrap: 'wrap'
           }}>
+            {/* Dar de Baja */}
+            <button
+              onClick={handleDarDeBaja}
+              disabled={uploading}
+              style={{
+                padding: '1.1rem 1.6rem',
+                backgroundColor: 'transparent',
+                color: '#c0392b',
+                border: '2px solid #c0392b',
+                borderRadius: '10px',
+                fontWeight: 700,
+                cursor: uploading ? 'not-allowed' : 'pointer',
+                fontSize: '0.9rem',
+                letterSpacing: '0.03em',
+                transition: 'background-color 0.2s, color 0.2s',
+                whiteSpace: 'nowrap',
+              }}
+              onMouseEnter={e => {
+                if (!uploading) {
+                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#fdf2f1'
+                }
+              }}
+              onMouseLeave={e => {
+                ; (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent'
+              }}
+            >
+              Dar de Baja (Sin foto)
+            </button>
+
+            {/* Publicar con Foto Original */}
+            <button
+              onClick={handlePublishWithOriginal}
+              disabled={uploading || !currentBook.original_front_image_url}
+              style={{
+                padding: '1.1rem 1.6rem',
+                backgroundColor: 'transparent',
+                color: '#27ae60',
+                border: '2px solid #27ae60',
+                borderRadius: '10px',
+                fontWeight: 700,
+                cursor: uploading || !currentBook.original_front_image_url ? 'not-allowed' : 'pointer',
+                fontSize: '0.9rem',
+                letterSpacing: '0.03em',
+                transition: 'background-color 0.2s, color 0.2s',
+                whiteSpace: 'nowrap',
+                opacity: !currentBook.original_front_image_url ? 0.5 : 1
+              }}
+              onMouseEnter={e => {
+                if (!uploading && currentBook.original_front_image_url) {
+                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#eafaf1'
+                }
+              }}
+              onMouseLeave={e => {
+                ; (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent'
+              }}
+              title={!currentBook.original_front_image_url ? "No hay foto original" : "Copiar foto original y publicar"}
+            >
+              📷 Publicar con Original
+            </button>
+
             {/* Saltar: carrusel infinito, sin tocar BD */}
             <button
               onClick={handleSkip}
