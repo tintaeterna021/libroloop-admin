@@ -17,8 +17,8 @@ type ColumnKey = 'name' | 'email' | 'phone';
 export default function UsuariosClient({ initialProfiles }: { initialProfiles: ProfileRow[] }) {
   const searchParams = useSearchParams();
   const [search, setSearch] = useState<Record<ColumnKey, string>>({
-    name: searchParams.get('name') || '',
-    email: '',
+    name: '',
+    email: searchParams.get('email') || '',
     phone: ''
   });
 

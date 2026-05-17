@@ -238,7 +238,7 @@ export default function ConsignacionesClient({ pending, upToDate }: { pending: U
       <div>
         <h3 style={{ margin: '0 0 0.5rem 0', fontFamily: "'Montserrat', sans-serif", color: '#1B3022' }}>
           <Link
-            href={`/usuarios?name=${encodeURIComponent(user.name || '')}`}
+            href={`/usuarios?email=${encodeURIComponent(user.email || '')}`}
             style={{ color: '#1B3022', textDecoration: 'underline', textUnderlineOffset: '3px' }}
           >
             {user.name || 'Sin Nombre'}
