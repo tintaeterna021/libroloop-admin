@@ -68,10 +68,10 @@ export default async function LotesPage() {
                            href={`/usuarios?email=${encodeURIComponent(lot.user.email)}`}
                            style={{ fontWeight: 800, color: '#1B3022', textDecoration: 'underline', textUnderlineOffset: '3px' }}
                          >
-                           {lot.user.name || 'Sin Nombre'}
+                           {lot.user.name || lot.user.email.split('@')[0]}
                          </Link>
                        ) : (
-                         <span style={{ fontWeight: 800 }}>{lot.user?.name || 'Desconocido'}</span>
+                         <span style={{ fontWeight: 800 }}>{lot.user?.name || 'Vendedor Desconocido'}</span>
                        )}
                     </p>
                     {lot.user?.phone && (

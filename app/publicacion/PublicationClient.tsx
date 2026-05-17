@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { calculatePrices } from '@/lib/pricing'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function PublicationClient({ initialLots }: { initialLots: any[] }) {
     const [lots, setLots] = useState(initialLots)
@@ -132,7 +133,7 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                         {lots.map((lot, index) => {
                             const isOption1Available = lot.books.length >= 2;
-                            const userName = lot.user?.email ? lot.user.email.split('@')[0] : 'Vendedor';
+                            const userName = lot.user?.name || (lot.user?.email ? lot.user.email.split('@')[0] : 'Vendedor');
                             const userPhone = lot.user?.phone ? lot.user.phone.replace(/\D/g, '') : '';
                             const currentSelection = selectedOptions[lot.user.id] || '';
 
@@ -192,17 +193,19 @@ export default function PublicationClient({ initialLots }: { initialLots: any[] 
                                                     Listo para publicar
                                                 </span>
                                             </div>
-                                            <p style={{ fontSize: '1.1rem', color: '#1A1A1A', fontWeight: 600, margin: '0 0 0.25rem' }}>
-                                                Vendedor: <span style={{ fontWeight: 800 }}>{userName}</span>
+                                            <p style={{ fontSize: '1.1rem', color: '#1A1A1A', fontWeight: 600, margin: '0 0 1rem' }}>
+                                                Vendedor:{' '}
+                                                {lot.user?.email ? (
+                                                    <Link
+                                                        href={`/usuarios?email=${encodeURIComponent(lot.user.email)}`}
+                                                        style={{ fontWeight: 800, color: '#1B3022', textDecoration: 'underline', textUnderlineOffset: '3px' }}
+                                                    >
+                                                        {userName}
+                                                    </Link>
+                                                ) : (
+                                                    <span style={{ fontWeight: 800 }}>{userName}</span>
+                                                )}
                                             </p>
-                                            <p style={{ fontSize: '0.95rem', margin: '0 0 0.25rem' }}>
-                                                Correo: <span style={{ fontWeight: 800 }}>{lot.user?.email || 'N/A'}</span>
-                                            </p>
-                                            {userPhone && (
-                                                <p style={{ fontSize: '0.95rem', margin: '0 0 1rem' }}>
-                                                    WhatsApp: <a href={`https://wa.me/${userPhone}`} target="_blank" rel="noopener noreferrer" style={{ color: '#25D366', fontWeight: 800, textDecoration: 'none' }}>{lot.user.phone}</a>
-                                                </p>
-                                            )}
                                             <p style={{ fontSize: '0.95rem', color: '#888', margin: '0 0 1rem', fontWeight: 500 }}>
                                                 Contiene <strong style={{ color: '#1B3022' }}>{lot.books.length}</strong> libros validados.
                                                 {isOption1Available ? <span style={{ color: '#27ae60', marginLeft: '0.5rem' }}>(Califica para Opción 1 ✨)</span> : <span style={{ color: '#f39c12', marginLeft: '0.5rem' }}>(Solo Opción 50/50 - Menos de 2 libros)</span>}

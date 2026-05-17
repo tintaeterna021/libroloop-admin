@@ -7,7 +7,7 @@ export default async function PublicacionPage() {
   // Fetch books ready to be published (status 4)
   const { data: books, error } = await supabase
     .from('books')
-    .select('*, profiles(id, email, phone)')
+    .select('*, profiles(id, name, email, phone)')
     .eq('status_code', 4)
 
   if (error) {
