@@ -35,6 +35,17 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
     if (addrData) address = addrData;
   }
 
+  // 1.6 Fetch Buyer Email
+  let buyerEmail = '';
+  if (order.user_id) {
+    const { data: buyerProfile } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('id', order.user_id)
+      .single();
+    if (buyerProfile?.email) buyerEmail = buyerProfile.email;
+  }
+
   // 2. Fetch Books for this order
   const { data: books, error: booksError } = await supabase
     .from('books')
@@ -79,7 +90,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       </header>
 
       <main style={{ maxWidth: '1000px', margin: '0 auto' }}>
-        <OrderDetailClient order={order} books={enrichedBooks} address={address} />
+        <OrderDetailClient order={order} books={enrichedBooks} address={address} buyerEmail={buyerEmail} />
       </main>
     </div>
   )

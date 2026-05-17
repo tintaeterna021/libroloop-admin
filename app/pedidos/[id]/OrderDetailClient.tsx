@@ -1,6 +1,7 @@
 'use client';
 
 import { supabase } from '@/lib/supabase';
+import Link from 'next/link';
 
 type Order = {
   id: string;
@@ -19,7 +20,7 @@ type Order = {
   payment_method: string;
 };
 
-export default function OrderDetailClient({ order, books, address }: { order: Order; books: any[]; address: any }) {
+export default function OrderDetailClient({ order, books, address, buyerEmail }: { order: Order; books: any[]; address: any; buyerEmail: string }) {
   const getStatusName = (status: number) => {
     switch (status) {
       case 1: return '🟡 Nuevos (Por confirmar pago)';
@@ -138,8 +139,15 @@ export default function OrderDetailClient({ order, books, address }: { order: Or
           <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1B3022', marginBottom: '1.5rem', borderBottom: '1px solid #eee', paddingBottom: '0.5rem' }}>
             Información del Cliente
           </h2>
-          <p style={{ margin: '0 0 0.5rem', color: '#555' }}><strong style={{ color: '#333' }}>Nombre:</strong> {order.contact_name}</p>
-          <p style={{ margin: '0 0 0.5rem', color: '#555' }}><strong style={{ color: '#333' }}>Teléfono:</strong> {order.contact_phone}</p>
+          <p style={{ margin: '0 0 0.5rem', color: '#555' }}>
+            <strong style={{ color: '#333' }}>Nombre:</strong>{' '}
+            <Link
+              href={`/usuarios?email=${encodeURIComponent(buyerEmail)}`}
+              style={{ color: '#1B3022', textDecoration: 'underline', textUnderlineOffset: '3px', fontWeight: 600 }}
+            >
+              {order.contact_name}
+            </Link>
+          </p>
 
           {address && (
             <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#f9f9f9', borderRadius: '8px', border: '1px solid #eee' }}>
