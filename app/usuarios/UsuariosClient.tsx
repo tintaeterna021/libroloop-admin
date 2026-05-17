@@ -95,13 +95,28 @@ export default function UsuariosClient({ initialProfiles }: { initialProfiles: P
                   </td>
                 </tr>
               ) : (
-                filtered.map((p) => (
-                  <tr key={p.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                    <td style={{ padding: '0.85rem 1rem', color: '#222' }}>{cell(p.name)}</td>
-                    <td style={{ padding: '0.85rem 1rem', color: '#222' }}>{cell(p.email)}</td>
-                    <td style={{ padding: '0.85rem 1rem', color: '#222' }}>{cell(p.phone)}</td>
-                  </tr>
-                ))
+                filtered.map((p) => {
+                  const phoneDigits = p.phone ? p.phone.replace(/\D/g, '') : '';
+                  return (
+                    <tr key={p.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                      <td style={{ padding: '0.85rem 1rem', color: '#222' }}>{cell(p.name)}</td>
+                      <td style={{ padding: '0.85rem 1rem', color: '#222' }}>
+                        {p.email && p.email.trim() ? (
+                          <a href={`mailto:${p.email.trim()}`} style={{ color: '#1B3022', textDecoration: 'underline' }}>
+                            {p.email}
+                          </a>
+                        ) : '—'}
+                      </td>
+                      <td style={{ padding: '0.85rem 1rem', color: '#222' }}>
+                        {p.phone && p.phone.trim() ? (
+                          <a href={`https://wa.me/${phoneDigits}`} target="_blank" rel="noopener noreferrer" style={{ color: '#25D366', textDecoration: 'none', fontWeight: 600 }}>
+                            {p.phone}
+                          </a>
+                        ) : '—'}
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
