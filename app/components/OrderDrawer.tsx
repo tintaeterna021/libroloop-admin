@@ -8,6 +8,7 @@ export default function OrderDrawer({ orderId, onClose }: { orderId: string, onC
   const [order, setOrder] = useState<any>(null);
   const [books, setBooks] = useState<any[]>([]);
   const [address, setAddress] = useState<any>(null);
+  const [buyerEmail, setBuyerEmail] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,6 +20,16 @@ export default function OrderDrawer({ orderId, onClose }: { orderId: string, onC
         if (o.shipping_address_id) {
           const { data: a } = await supabase.from('addresses').select('*').eq('id', o.shipping_address_id).single();
           setAddress(a);
+        }
+        if (o.user_id) {
+          const { data: buyerProfile } = await supabase.from('profiles').select('email').eq('id', o.user_id).single();
+          if (buyerProfile?.email) {
+            setBuyerEmail(buyerProfile.email);
+          } else {
+            setBuyerEmail('');
+          }
+        } else {
+          setBuyerEmail('');
         }
         const { data: b } = await supabase.from('books').select('*').eq('order_id', orderId);
         let enrichedBooks = b || [];
@@ -76,7 +87,7 @@ export default function OrderDrawer({ orderId, onClose }: { orderId: string, onC
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '2rem', color: '#1B3022', fontWeight: 900, marginBottom: '2rem' }}>
               Detalle del Pedido #LL-{order.order_number}
             </h2>
-            <OrderDetailClient order={order} books={books} address={address} />
+            <OrderDetailClient order={order} books={books} address={address} buyerEmail={buyerEmail} />
           </div>
         ) : (
           <div style={{ textAlign: 'center', marginTop: '4rem', fontSize: '1.2rem', color: '#c0392b' }}>Pedido no encontrado</div>
