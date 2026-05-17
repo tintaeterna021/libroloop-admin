@@ -7,7 +7,7 @@ export default async function LotesPage() {
   // Fetch books in review (status 1)
   const { data: books, error } = await supabase
     .from('books')
-    .select('*, profiles(id, email, phone)')
+    .select('*, profiles(id, name, email, phone)')
     .eq('status_code', 1)
 
   if (error) {
@@ -62,7 +62,17 @@ export default async function LotesPage() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                     <p style={{ fontSize: '1.1rem', color: '#1A1A1A', fontWeight: 600, margin: 0 }}>
-                       Vendedor: <span style={{ fontWeight: 800 }}>{lot.user?.email || 'Desconocido'}</span> 
+                       Vendedor:{' '}
+                       {lot.user?.email ? (
+                         <Link
+                           href={`/usuarios?email=${encodeURIComponent(lot.user.email)}`}
+                           style={{ fontWeight: 800, color: '#1B3022', textDecoration: 'underline', textUnderlineOffset: '3px' }}
+                         >
+                           {lot.user.name || 'Sin Nombre'}
+                         </Link>
+                       ) : (
+                         <span style={{ fontWeight: 800 }}>{lot.user?.name || 'Desconocido'}</span>
+                       )}
                     </p>
                     {lot.user?.phone && (
                       <a 
