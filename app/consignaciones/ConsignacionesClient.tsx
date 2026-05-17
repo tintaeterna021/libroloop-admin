@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -236,7 +237,12 @@ export default function ConsignacionesClient({ pending, upToDate }: { pending: U
     }}>
       <div>
         <h3 style={{ margin: '0 0 0.5rem 0', fontFamily: "'Montserrat', sans-serif", color: '#1B3022' }}>
-          {user.name || 'Sin Nombre'} <span style={{ fontSize: '0.9rem', color: '#666', fontWeight: 400 }}></span>
+          <Link
+            href={`/usuarios?name=${encodeURIComponent(user.name || '')}`}
+            style={{ color: '#1B3022', textDecoration: 'underline', textUnderlineOffset: '3px' }}
+          >
+            {user.name || 'Sin Nombre'}
+          </Link>
         </h3>
         <p style={{ margin: '0', fontSize: '0.9rem', color: '#555' }}>
           Libros en bodega: <strong>{user.relevantBooksCount}</strong>

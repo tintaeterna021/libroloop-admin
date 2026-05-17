@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 export type ProfileRow = {
   id: string;
@@ -14,8 +15,9 @@ export type ProfileRow = {
 type ColumnKey = 'name' | 'email' | 'phone';
 
 export default function UsuariosClient({ initialProfiles }: { initialProfiles: ProfileRow[] }) {
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState<Record<ColumnKey, string>>({
-    name: '',
+    name: searchParams.get('name') || '',
     email: '',
     phone: ''
   });
