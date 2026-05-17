@@ -91,26 +91,137 @@ export default function LotViewer({ serverBooks }: { serverBooks: any[] }) {
 
     // === Advanced Metadata Parsing (Tinta Eterna Port) ===
     const CATEGORY_MAP: Record<string, string> = {
-        "change (psychology)": "Autoayuda y desarrollo personal",
-        "conduct of life": "Autoayuda y desarrollo personal",
-        "self-help": "Autoayuda y desarrollo personal",
-        "biography & autobiography": "Biografía y autobiografía",
-        "family & relationships": "Familia y relaciones",
-        "american fiction": "Ficción",
-        "fiction": "Ficción",
-        "science fiction": "Ficción",
-        "juvenile fiction": "Ficción juvenil",
-        "young adult fiction": "Ficción juvenil",
-        "philosophy": "Filosofía y pensamiento",
-        "history": "Historia",
-        "juvenile nonfiction": "Juvenil no ficción",
-        "business & economics": "Negocios y economía",
-        "body, mind & spirit": "Religión y espiritualidad",
-        "buddhism": "Religión y espiritualidad",
-        "aging": "Salud y bienestar",
-        "health & fitness": "Salud y bienestar",
-        "science": "Tecnología y ciencia"
-    }
+  // Autoayuda y desarrollo personal
+  "change (psychology)": "Autoayuda y desarrollo personal",
+  "conduct of life": "Autoayuda y desarrollo personal",
+  "self-help": "Autoayuda y desarrollo personal",
+  "autoayuda": "Autoayuda y desarrollo personal",
+  "ambition": "Autoayuda y desarrollo personal",
+  "life skills": "Autoayuda y desarrollo personal",
+
+  // Biografía y autobiografía
+  "biography & autobiography": "Biografía y autobiografía",
+  "biografía y autobiografía": "Biografía y autobiografía",
+  "biografía": "Biografía y autobiografía",
+  "journalists": "Biografía y autobiografía",
+  "actors": "Biografía y autobiografía",
+  "diaries": "Biografía y autobiografía",
+
+  // Familia y relaciones
+  "family & relationships": "Familia y relaciones",
+  "friendship": "Familia y relaciones",
+  "abandoned children": "Familia y relaciones",
+  "best friends": "Familia y relaciones",
+  "emotions": "Familia y relaciones",
+
+  // Ficción
+  "american fiction": "Ficción",
+  "fiction": "Ficción",
+  "ficción": "Ficción",
+  "ficción ": "Ficción",
+  "science fiction": "Ficción",
+  "english fiction": "Ficción",
+  "chilean fiction": "Ficción",
+  "colombian fiction": "Ficción",
+  "mexican fiction": "Ficción",
+  "detective and mystery stories": "Ficción",
+  "dragons": "Ficción",
+  "drama": "Ficción",
+  "romance fiction": "Ficción",
+  "short stories, spanish": "Ficción",
+  "film novelizations": "Ficción",
+  "literary collections": "Ficción",
+  "assassins": "Ficción",
+
+  // Ficción juvenil
+  "juvenile fiction": "Ficción juvenil",
+  "young adult fiction": "Ficción juvenil",
+  "ficción juvenil": "Ficción juvenil",
+  "children of the rich": "Ficción juvenil",
+  "boys": "Ficción juvenil",
+  "college stories": "Ficción juvenil",
+  "alice (fictitious character : carroll)": "Ficción juvenil",
+
+  // Infantil
+  "infantil": "Infantil",
+  "children's stories": "Infantil",
+
+  // Filosofía y pensamiento
+  "philosophy": "Filosofía y pensamiento",
+  "filosofía": "Filosofía y pensamiento",
+  "political science": "Filosofía y pensamiento",
+  "social science": "Filosofía y pensamiento",
+
+  // Historia
+  "history": "Historia",
+  "historia": "Historia",
+  "colombia": "Historia",
+  "latin america": "Historia",
+  "mexico": "Historia",
+  "canada": "Historia",
+  "england": "Historia",
+  "italy": "Historia",
+  "barcelona (spain)": "Historia",
+  "americans": "Historia",
+
+  // Juvenil no ficción
+  "juvenile nonfiction": "Juvenil no ficción",
+  "young adult nonfiction": "Juvenil no ficción",
+
+  // Negocios y economía
+  "business & economics": "Negocios y economía",
+  "negocios y economía": "Negocios y economía",
+  "economía": "Negocios y economía",
+
+  // Religión y espiritualidad
+  "body, mind & spirit": "Religión y espiritualidad",
+  "buddhism": "Religión y espiritualidad",
+  "religion": "Religión y espiritualidad",
+  "religión": "Religión y espiritualidad",
+
+  // Salud y bienestar
+  "aging": "Salud y bienestar",
+  "health & fitness": "Salud y bienestar",
+  "salud": "Salud y bienestar",
+  "salud y estado físico": "Salud y bienestar",
+  "alcoholics": "Salud y bienestar",
+  "death": "Salud y bienestar",
+
+  // Psicología
+  "psychology": "Psicología",
+
+  // Educación
+  "education": "Educación",
+  "educación": "Educación",
+  "child development": "Educación",
+
+  // Ciencia
+  "science": "Ciencia",
+  "ciencia": "Ciencia",
+
+  // Tecnología
+  "tecnología": "Tecnología",
+  "automobiles": "Viajes y transporte",
+  "carros": "Viajes y transporte",
+  "autos": "Viajes y transporte",
+  "transportation": "Viajes y transporte",
+  "coffeehouses": "Viajes y transporte",
+
+  // Arte y fotografía
+  "fotografía": "Arte y fotografía",
+  "photography": "Arte y fotografía",
+
+  // Cocina y hogar
+  "cocina": "Cocina y hogar",
+  "cooking": "Cocina y hogar",
+  "appetizers": "Cocina y hogar",
+  "desserts": "Cocina y hogar",
+
+  // Poesía y literatura
+  "poesía": "Poesía y literatura",
+  "mexican literature": "Poesía y literatura",
+  "literary criticism": "Poesía y literatura",
+};
 
     // === Handlers ===
     const handleSearchISBN = async (overrideIsbn?: any) => {
