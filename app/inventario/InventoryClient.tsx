@@ -12,6 +12,11 @@ type Book = {
   internal_comment: string | null;
   created_at: string;
   storage_option: number | null;
+  original_front_image_url: string | null;
+  original_back_image_url: string | null;
+  publish_front_image_url: string | null;
+  publish_back_image_url: string | null;
+  purged_at: string | null;
   profiles: { phone: string } | { phone: string }[] | null;
 };
 
@@ -100,6 +105,100 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
       alert(`Se recolectaron ${eligibleBooks.length} libro(s) exitosamente.`);
     }
     
+    setIsUpdating(false);
+  };
+
+  const handlePurgarFotos = async () => {
+    const validStatuses = [2, 9, 10, 11];
+    const eligibleBooks = books.filter(b => selectedIds.has(b.id) && validStatuses.includes(b.status_code) && !b.purged_at);
+    
+    if (eligibleBooks.length === 0) {
+      alert('No hay libros seleccionados válidos para purgar que no hayan sido purgados previamente. (Deben tener estatus 2, 9, 10 o 11).');
+      return;
+    }
+
+    if (!confirm(`¿Estás seguro de purgar las fotos de ${eligibleBooks.length} libro(s)? Las imágenes se eliminarán permanentemente de la base de datos y de la bodega (bucket).`)) return;
+
+    setIsUpdating(true);
+
+    let storageErrors = 0;
+    let dbErrors = 0;
+
+    const getFilePath = (url: string | null) => {
+      if (!url) return null;
+      const parts = url.split('/public/books/');
+      if (parts.length > 1) {
+        let path = parts[1];
+        // Quitar parámetros tipo ?t=123
+        path = path.split('?')[0];
+        // Quitar fragmentos #
+        path = path.split('#')[0];
+        try {
+          return decodeURIComponent(path);
+        } catch (e) {
+          return path;
+        }
+      }
+      return null;
+    };
+
+    for (const book of eligibleBooks) {
+      const filesToDelete: string[] = [];
+      const updatePayload: any = { purged_at: new Date().toISOString() };
+
+      // Mantener siempre: original_front_image_url
+      // Eliminar: original_back_image_url, publish_front_image_url, publish_back_image_url
+      const p1 = getFilePath(book.original_back_image_url);
+      const p2 = getFilePath(book.publish_front_image_url);
+      const p3 = getFilePath(book.publish_back_image_url);
+      if (p1) filesToDelete.push(p1);
+      if (p2) filesToDelete.push(p2);
+      if (p3) filesToDelete.push(p3);
+      
+      updatePayload.original_back_image_url = null;
+      updatePayload.publish_front_image_url = null;
+      updatePayload.publish_back_image_url = null;
+
+      // Delete from storage
+      let hadStorageError = false;
+      if (filesToDelete.length > 0) {
+        const { data, error: storageError } = await supabase.storage.from('books').remove(filesToDelete);
+        if (storageError) {
+          console.error(`Error deleting files for book ${book.id}:`, storageError);
+          storageErrors++;
+          hadStorageError = true;
+        } else if (!data || data.length === 0) {
+          // Silently failed, probably RLS blocking DELETE
+          console.error(`Error de permisos RLS o archivo inexistente en bucket para el libro ${book.id}`);
+          storageErrors++;
+          hadStorageError = true;
+        }
+      }
+
+      // Update DB only if storage deletion was somewhat successful or we want to force it?
+      // For safety, let's update DB anyway, but warn the user about storage errors.
+      const { error: dbError } = await supabase.from('books').update(updatePayload).eq('id', book.id);
+      if (dbError) {
+        console.error(`Error updating book ${book.id}:`, dbError);
+        dbErrors++;
+      } else {
+        // Update local state
+        setBooks(prev => prev.map(b => b.id === book.id ? { ...b, ...updatePayload } : b));
+      }
+    }
+
+    if (storageErrors > 0 || dbErrors > 0) {
+      alert(`Terminado con errores.\nErrores de Bucket (Storage): ${storageErrors}\nErrores de Base de Datos: ${dbErrors}\n\n⚠️ Si los errores son de Storage, lo más probable es que falte agregar permisos de DELETE en las políticas (RLS) del bucket "books" en tu panel de Supabase.`);
+    } else {
+      alert(`Se purgaron fotos de ${eligibleBooks.length} libro(s) exitosamente.`);
+      // Deseleccionar los actualizados
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        eligibleBooks.forEach(b => next.delete(b.id));
+        return next;
+      });
+    }
+
     setIsUpdating(false);
   };
 
@@ -225,6 +324,27 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
           <p style={{ color: '#666', fontSize: '0.95rem' }}>Gestión avanzada de libros, filtros y estados operativos.</p>
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
+          <button
+            onClick={handlePurgarFotos}
+            disabled={isUpdating || selectedIds.size === 0}
+            style={{
+              backgroundColor: isUpdating || selectedIds.size === 0 ? '#ccc' : '#e74c3c',
+              color: 'white',
+              border: 'none',
+              padding: '0.8rem 1.5rem',
+              borderRadius: '8px',
+              fontWeight: 600,
+              cursor: isUpdating || selectedIds.size === 0 ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              boxShadow: isUpdating || selectedIds.size === 0 ? 'none' : '0 4px 10px rgba(231, 76, 60, 0.3)'
+            }}
+            title="Eliminar fotos innecesarias para liberar espacio"
+          >
+            🗑️ Purgar Fotos
+          </button>
           <button
             onClick={handleRecolectar}
             disabled={isUpdating || selectedIds.size === 0}
