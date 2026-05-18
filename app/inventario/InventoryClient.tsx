@@ -17,6 +17,8 @@ type Book = {
   publish_front_image_url: string | null;
   publish_back_image_url: string | null;
   purged_at: string | null;
+  rejection_comment: string | null;
+  deactivated_at: string | null;
   profiles: { phone: string } | { phone: string }[] | null;
 };
 
@@ -61,6 +63,11 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
   // Selection
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // Modal Dar de baja
+  const [showDeactivateModal, setShowDeactivateModal] = useState(false);
+  const [deactivateReason, setDeactivateReason] = useState('Se dañó en bodega');
+  const [customDeactivateReason, setCustomDeactivateReason] = useState('');
 
   const handleRecolectar = async () => {
     // Filtrar solo los libros seleccionados que tengan storage_option === 1 (Bodega LL por recolectar)
@@ -202,6 +209,59 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
     setIsUpdating(false);
   };
 
+  const handleDarDeBajaClick = () => {
+    const validStatuses = [1, 4, 5, 6, 13];
+    const eligibleBooks = books.filter(b => selectedIds.has(b.id) && validStatuses.includes(b.status_code));
+    if (eligibleBooks.length === 0) {
+      alert('No hay libros seleccionados válidos para dar de baja (deben tener estatus 1, 4, 5, 6 o 13).');
+      return;
+    }
+    setShowDeactivateModal(true);
+  };
+
+  const confirmDarDeBaja = async () => {
+    const validStatuses = [1, 4, 5, 6, 13];
+    const eligibleBooks = books.filter(b => selectedIds.has(b.id) && validStatuses.includes(b.status_code));
+    
+    setIsUpdating(true);
+    
+    const finalReason = deactivateReason === 'Añadir comentario' ? customDeactivateReason : deactivateReason;
+    const idsToUpdate = eligibleBooks.map(b => b.id);
+    const now = new Date().toISOString();
+    
+    const { error } = await supabase
+      .from('books')
+      .update({ 
+        status_code: 11, 
+        rejection_comment: finalReason,
+        deactivated_at: now
+      })
+      .in('id', idsToUpdate);
+
+    if (error) {
+      console.error('Error dando de baja:', error);
+      alert('Hubo un error al dar de baja los libros.');
+    } else {
+      setBooks(prev => prev.map(book => {
+        if (idsToUpdate.includes(book.id)) {
+          return { ...book, status_code: 11, rejection_comment: finalReason, deactivated_at: now };
+        }
+        return book;
+      }));
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        idsToUpdate.forEach(id => next.delete(id));
+        return next;
+      });
+      alert(`Se dieron de baja ${eligibleBooks.length} libro(s) exitosamente.`);
+      setShowDeactivateModal(false);
+      setDeactivateReason('Se dañó en bodega');
+      setCustomDeactivateReason('');
+    }
+    
+    setIsUpdating(false);
+  };
+
   const toggleSelectAll = () => {
     if (isAllSelected) {
       setSelectedIds(new Set());
@@ -325,27 +385,6 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
           <button
-            onClick={handlePurgarFotos}
-            disabled={isUpdating || selectedIds.size === 0}
-            style={{
-              backgroundColor: isUpdating || selectedIds.size === 0 ? '#ccc' : '#e74c3c',
-              color: 'white',
-              border: 'none',
-              padding: '0.8rem 1.5rem',
-              borderRadius: '8px',
-              fontWeight: 600,
-              cursor: isUpdating || selectedIds.size === 0 ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              boxShadow: isUpdating || selectedIds.size === 0 ? 'none' : '0 4px 10px rgba(231, 76, 60, 0.3)'
-            }}
-            title="Eliminar fotos innecesarias para liberar espacio"
-          >
-            🗑️ Purgar Fotos
-          </button>
-          <button
             onClick={handleRecolectar}
             disabled={isUpdating || selectedIds.size === 0}
             style={{
@@ -369,6 +408,48 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
               <circle cx="12" cy="10" r="3"></circle>
             </svg>
             {isUpdating ? 'Procesando...' : 'Recolectar'}
+          </button>
+          <button
+            onClick={handleDarDeBajaClick}
+            disabled={isUpdating || selectedIds.size === 0}
+            style={{
+              backgroundColor: isUpdating || selectedIds.size === 0 ? '#ccc' : '#e67e22',
+              color: 'white',
+              border: 'none',
+              padding: '0.8rem 1.5rem',
+              borderRadius: '8px',
+              fontWeight: 600,
+              cursor: isUpdating || selectedIds.size === 0 ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              boxShadow: isUpdating || selectedIds.size === 0 ? 'none' : '0 4px 10px rgba(230, 126, 34, 0.3)'
+            }}
+            title="Dar de baja libros seleccionados (Estatus 1, 4, 5, 6, 13)"
+          >
+            ⚠️ Dar de baja
+          </button>
+          <button
+            onClick={handlePurgarFotos}
+            disabled={isUpdating || selectedIds.size === 0}
+            style={{
+              backgroundColor: isUpdating || selectedIds.size === 0 ? '#ccc' : '#e74c3c',
+              color: 'white',
+              border: 'none',
+              padding: '0.8rem 1.5rem',
+              borderRadius: '8px',
+              fontWeight: 600,
+              cursor: isUpdating || selectedIds.size === 0 ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              boxShadow: isUpdating || selectedIds.size === 0 ? 'none' : '0 4px 10px rgba(231, 76, 60, 0.3)'
+            }}
+            title="Eliminar fotos innecesarias para liberar espacio"
+          >
+            🗑️ Purgar Fotos
           </button>
         </div>
       </header>
@@ -554,6 +635,65 @@ export default function InventoryClient({ initialBooks }: { initialBooks: Book[]
           Total de registros: {filteredAndSortedBooks.length}
         </div>
       </div>
+
+      {/* Modal Dar de baja */}
+      {showDeactivateModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white', padding: '2rem', borderRadius: '12px',
+            width: '90%', maxWidth: '400px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+          }}>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", marginBottom: '1rem', color: '#1B3022' }}>Dar de baja libros</h2>
+            <p style={{ marginBottom: '1rem', color: '#666' }}>
+              Selecciona el motivo por el cual quieres dar de baja los libros seleccionados.
+            </p>
+            
+            <select 
+              value={deactivateReason} 
+              onChange={(e) => setDeactivateReason(e.target.value)}
+              style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #ccc', marginBottom: '1rem', fontFamily: 'inherit' }}
+            >
+              <option value="Se dañó en bodega">Se dañó en bodega</option>
+              <option value="Devolución">Devolución</option>
+              <option value="Más antiguo de 25 años">Más antiguo de 25 años</option>
+              <option value="Error de procesamiento">Error de procesamiento</option>
+              <option value="Añadir comentario">Añadir comentario (Otro)</option>
+            </select>
+
+            {deactivateReason === 'Añadir comentario' && (
+              <textarea 
+                value={customDeactivateReason} 
+                onChange={(e) => setCustomDeactivateReason(e.target.value)}
+                placeholder="Escribe el motivo aquí..."
+                style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #ccc', marginBottom: '1rem', fontFamily: 'inherit', minHeight: '80px', resize: 'vertical' }}
+              />
+            )}
+
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
+              <button 
+                onClick={() => setShowDeactivateModal(false)}
+                style={{ padding: '0.8rem 1.5rem', borderRadius: '8px', border: '1px solid #ccc', backgroundColor: 'transparent', cursor: 'pointer', fontWeight: 600 }}
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={confirmDarDeBaja}
+                disabled={isUpdating || (deactivateReason === 'Añadir comentario' && !customDeactivateReason.trim())}
+                style={{ 
+                  padding: '0.8rem 1.5rem', borderRadius: '8px', border: 'none', 
+                  backgroundColor: isUpdating || (deactivateReason === 'Añadir comentario' && !customDeactivateReason.trim()) ? '#ccc' : '#e74c3c', 
+                  color: 'white', cursor: isUpdating || (deactivateReason === 'Añadir comentario' && !customDeactivateReason.trim()) ? 'not-allowed' : 'pointer', fontWeight: 600 
+                }}
+              >
+                {isUpdating ? 'Procesando...' : 'Confirmar Baja'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
